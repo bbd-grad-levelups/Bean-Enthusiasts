@@ -27,11 +27,23 @@ class TestController {
 
   }
 
-  @GetMapping("/test")
-  ResponseEntity<?> test() {
+  @GetMapping("/test/1")
+  ResponseEntity<?> hello() {
     String helloString = "Hello!";
     return ResponseEntity.ok().body(helloString);
   }
 
+  @GetMapping("/test/2")
+  ResponseEntity<?> world() {
+    String helloString = "World!";
+    return ResponseEntity.ok().body(helloString);
+  }
+
+  @GetMapping("/test/3")
+  ResponseEntity<?> data() {
+    String helloString = "This is a different string.";
+    return ResponseEntity.ok().body(helloString);
+  }
+  
 
 }
