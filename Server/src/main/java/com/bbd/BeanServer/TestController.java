@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -23,27 +24,38 @@ import org.springframework.http.ResponseEntity;
 @RestController
 class TestController {
 
+  @Autowired
+  private GreetingRepository greetingRepository;
   TestController() {
 
   }
 
-  @GetMapping("/test/1")
-  ResponseEntity<?> hello() {
-    String helloString = "Hello!";
-    return ResponseEntity.ok().body(helloString);
-  }
 
-  @GetMapping("/test/2")
-  ResponseEntity<?> world() {
-    String helloString = "World!";
-    return ResponseEntity.ok().body(helloString);
-  }
+  @GetMapping("test/{id}")
+  ResponseEntity<?> getGreeting(@PathVariable Long id) {
+    Greeting greetingData = greetingRepository.findById(id).orElse(new Greeting("Nope", 1));
 
-  @GetMapping("/test/3")
-  ResponseEntity<?> data() {
-    String helloString = "This is a different string.";
-    return ResponseEntity.ok().body(helloString);
+    return ResponseEntity.ok().body(greetingData.greeting);
   }
+  // @GetMapping("/test/1")
+  // ResponseEntity<?> hello() {
+  //   String helloString = "Hello!";
+  //   return ResponseEntity.ok().body(helloString);
+  // }
+
+  // @GetMapping("/test/2")
+  // ResponseEntity<?> world() {
+  //   String helloString = "World!";
+  //   return ResponseEntity.ok().body(helloString);
+  // }
+
+  // @GetMapping("/test/3")
+  // ResponseEntity<?> data() {
+  //   String helloString = "This is a different string.";
+  //   return ResponseEntity.ok().body(helloString);
+  // }
+
+
   
 
 }
