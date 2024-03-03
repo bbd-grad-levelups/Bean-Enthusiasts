@@ -1,4 +1,4 @@
-package main.java.com.bbd.BeanServer;
+package com.bbd.BeanServer;
 
 
 import java.net.URISyntaxException;
