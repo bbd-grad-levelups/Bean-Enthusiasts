@@ -48,6 +48,7 @@ public class ClientApplication {
         if (consuming.equals(""))
         {
           running = false;
+          scanner.close();
         }
 
 

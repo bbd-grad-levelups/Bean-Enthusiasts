@@ -26,36 +26,34 @@ class TestController {
 
   @Autowired
   private GreetingRepository greetingRepository;
+  @Autowired
+  private GreetingModelAssembler greetingAssembler;
   TestController() {
 
   }
 
 
+  
+  @GetMapping("/test")
+  CollectionModel<EntityModel<Greeting>> all() {
+
+    List<EntityModel<Greeting>> greetings = greetingRepository.findAll().stream()
+      .map(greetingAssembler::toModel).collect(Collectors.toList());
+
+    return CollectionModel.of(greetings,
+      linkTo(methodOn(TestController.class).all()).withSelfRel());
+  }
+
+
+
+
   @GetMapping("test/{id}")
-  ResponseEntity<?> getGreeting(@PathVariable Long id) {
+  EntityModel<Greeting> getGreeting(@PathVariable Long id) {
     Greeting greetingData = greetingRepository.findById(id).orElse(new Greeting("Nope", 1));
 
-    return ResponseEntity.ok().body(greetingData.greeting);
+    return greetingAssembler.toModel(greetingData);
   }
-  // @GetMapping("/test/1")
-  // ResponseEntity<?> hello() {
-  //   String helloString = "Hello!";
-  //   return ResponseEntity.ok().body(helloString);
-  // }
-
-  // @GetMapping("/test/2")
-  // ResponseEntity<?> world() {
-  //   String helloString = "World!";
-  //   return ResponseEntity.ok().body(helloString);
-  // }
-
-  // @GetMapping("/test/3")
-  // ResponseEntity<?> data() {
-  //   String helloString = "This is a different string.";
-  //   return ResponseEntity.ok().body(helloString);
-  // }
 
 
-  
 
 }
