@@ -9,8 +9,7 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
-Client/target/*
-Server/target/*
+
 
 # Package Files #
 *.jar
@@ -28,3 +27,7 @@ replay_pid*
 
 # Visual Studio Code Workspace file
 .vscode
+
+#Folders
+Client/target/
+Server/target/
