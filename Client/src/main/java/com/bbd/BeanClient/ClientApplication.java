@@ -39,7 +39,7 @@ public class ClientApplication {
       boolean running = true;
       while (running) {
 
-        resource = "http://localhost:8080/test/" + consuming;
+        resource = "http://localhost:8081/test/" + consuming;
         quote = restTemplate.getForObject(resource, String.class);
         
         System.out.println("Received: " + quote);
