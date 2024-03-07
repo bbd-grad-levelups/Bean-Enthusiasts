@@ -1,4 +1,4 @@
-package com.bbd.BeanServer;
+package com.bbd.BeanServer.db_classes;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,11 +15,11 @@ public class Greeting {
   String greeting;
   int randomVal;
 
-  Greeting() {
+  public Greeting() {
 
   }
 
-  Greeting(String newGreeting, int newVal) {
+  public Greeting(String newGreeting, int newVal) {
     this.greeting = newGreeting;
     this.randomVal = newVal;
   }

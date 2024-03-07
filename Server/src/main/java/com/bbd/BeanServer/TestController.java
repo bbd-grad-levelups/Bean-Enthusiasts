@@ -1,8 +1,8 @@
 package com.bbd.BeanServer;
 
-
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,13 +13,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bbd.BeanServer.db_classes.Greeting;
+import com.bbd.BeanServer.db_classes.Users;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 class TestController {
@@ -27,7 +28,11 @@ class TestController {
   @Autowired
   private GreetingRepository greetingRepository;
   @Autowired
-  private GreetingModelAssembler greetingAssembler;
+  private UserRepository userRepository;
+  @Autowired
+  private ModelAssembler<Greeting> greetingAssembler;
+  @Autowired
+  private ModelAssembler<Users> userAssembler;
   TestController() {
 
   }
@@ -53,7 +58,15 @@ class TestController {
 
     return greetingAssembler.toModel(greetingData);
   }
+  
 
+  @GetMapping("/user")
+  CollectionModel<EntityModel<Users>> allUsers() {
+    List <EntityModel<Users>> users = userRepository.findAll().stream()
+    .map(userAssembler::toModel).collect(Collectors.toList());
+    
+    return CollectionModel.of(users);
+  }
 
 
 }
