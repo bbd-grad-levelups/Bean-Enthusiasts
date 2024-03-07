@@ -29,5 +29,5 @@ replay_pid*
 .vscode
 
 #Folders
-Client/target/
-Server/target/
+/Client/target/
+/Server/target/
