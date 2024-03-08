@@ -1,4 +1,4 @@
-package com.bbd.BeanServer.db_classes;
+package com.bbd.BeanServer.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +11,7 @@ import lombok.Data;
 public class Greeting {
   
   @Id @GeneratedValue
-  Long ID;
+  int ID;
   String greeting;
   int randomVal;
 

@@ -1,8 +1,6 @@
-package com.bbd.BeanServer;
+package com.bbd.BeanServer.controller;
 
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,13 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bbd.BeanServer.db_classes.Greeting;
-import com.bbd.BeanServer.db_classes.Users;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import com.bbd.BeanServer.assembler.ModelAssembler;
+import com.bbd.BeanServer.model.Greeting;
+import com.bbd.BeanServer.model.Users;
+import com.bbd.BeanServer.repository.UserRepository;
+import com.bbd.BeanServer.service.GreetingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -26,40 +25,37 @@ import org.springframework.hateoas.EntityModel;
 class TestController {
 
   @Autowired
-  private GreetingRepository greetingRepository;
-  @Autowired
   private UserRepository userRepository;
+
   @Autowired
   private ModelAssembler<Greeting> greetingAssembler;
   @Autowired
   private ModelAssembler<Users> userAssembler;
+
+  @Autowired
+  private GreetingService greetingService;
+
+
   TestController() {
 
   }
-
-
   
   @GetMapping("/test")
   CollectionModel<EntityModel<Greeting>> all() {
 
-    List<EntityModel<Greeting>> greetings = greetingRepository.findAll().stream()
+    List<EntityModel<Greeting>> greetings = greetingService.getAllGreetings().stream()
       .map(greetingAssembler::toModel).collect(Collectors.toList());
 
-    return CollectionModel.of(greetings,
-      linkTo(methodOn(TestController.class).all()).withSelfRel());
+    return CollectionModel.of(greetings);
   }
 
-
-
-
   @GetMapping("test/{id}")
-  EntityModel<Greeting> getGreeting(@PathVariable Long id) {
-    Greeting greetingData = greetingRepository.findById(id).orElse(new Greeting("Nope", 1));
+  EntityModel<Greeting> getGreeting(@PathVariable int id) {
+    Greeting greetingData = greetingService.getGreetingById(id);
 
     return greetingAssembler.toModel(greetingData);
   }
   
-
   @GetMapping("/user")
   CollectionModel<EntityModel<Users>> allUsers() {
     List <EntityModel<Users>> users = userRepository.findAll().stream()
@@ -67,6 +63,5 @@ class TestController {
     
     return CollectionModel.of(users);
   }
-
 
 }
