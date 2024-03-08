@@ -1,8 +1,6 @@
 # Bean-Enthusiasts
 BBD Graduate Program JavaLevel-up (2024)
 
-
-
 # Prototype instructions
 Some instructions for running the basic prototype set up for connectivity between the three main elements of the system.
 

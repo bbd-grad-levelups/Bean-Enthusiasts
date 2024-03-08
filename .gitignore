@@ -26,6 +26,6 @@ replay_pid*
 # Visual Studio Code Workspace file
 .vscode
 
-# Maven related things
+# Maven build related things
 Server/target/*
 Client/target/*
