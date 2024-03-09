@@ -14,19 +14,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-class FavoriteBeansController {
+class FavoriteBeanController {
 
     @Autowired
     private FavoriteBeanRepository beansRepository;
     @Autowired
-    private FavoriteBeanService favoriteBeanService;
+    private FavoriteBeanService FavoriteBeanervice;
 
     @Autowired
     private ModelAssembler<FavoriteBean> beansAssembler;
 
     @GetMapping("/favoritebeans")
     CollectionModel<EntityModel<FavoriteBean>> all() {
-        List<EntityModel<FavoriteBean>> greetings = favoriteBeanService.getAllFavoriteBeans().stream()
+        List<EntityModel<FavoriteBean>> greetings = FavoriteBeanervice.getAllFavoriteBean().stream()
                 .map(beansAssembler::toModel).collect(Collectors.toList());
         return CollectionModel.of(greetings);
     }
