@@ -3,6 +3,7 @@ package com.bbd.BeanServer.service;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bbd.BeanServer.repository.GreetingRepository;
@@ -11,11 +12,8 @@ import com.bbd.BeanServer.model.Greeting;
 @Service
 public class GreetingService {
   
-  private final GreetingRepository repository;
-
-  public GreetingService(GreetingRepository newRepository) {
-    repository = newRepository;
-  }
+  @Autowired
+  private GreetingRepository repository;
 
   public List<Greeting> getAllGreetings() {
     List<Greeting> greetings = repository.findAll();

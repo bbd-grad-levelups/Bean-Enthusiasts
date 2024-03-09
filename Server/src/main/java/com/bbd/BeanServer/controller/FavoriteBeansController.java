@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 class FavoriteBeansController {
 
     @Autowired
-    private FavoriteBeanRepository beansRepository;
-    @Autowired
     private FavoriteBeanService favoriteBeanService;
 
     @Autowired
