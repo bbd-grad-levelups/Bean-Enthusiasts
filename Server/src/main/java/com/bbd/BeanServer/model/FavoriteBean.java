@@ -5,11 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class FavoriteBean {
 
     @Id
@@ -23,8 +26,6 @@ public class FavoriteBean {
     @Column(name = "is_banned", nullable = false)
     private boolean banned;
 
-    public FavoriteBean() {
-    }
 
     public FavoriteBean(String beanName, boolean banned) {
         this.beanName = beanName;

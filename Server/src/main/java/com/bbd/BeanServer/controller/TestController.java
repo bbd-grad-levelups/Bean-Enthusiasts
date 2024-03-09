@@ -56,7 +56,7 @@ class TestController {
     return greetingAssembler.toModel(greetingData);
   }
   
-  @GetMapping("/user")
+  @GetMapping("/test/user")
   CollectionModel<EntityModel<Users>> allUsers() {
     List <EntityModel<Users>> users = userRepository.findAll().stream()
     .map(userAssembler::toModel).collect(Collectors.toList());
