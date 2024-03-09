@@ -32,4 +32,6 @@ replay_pid*
 *.tfstate*
 *.lock*
 
-
+# Maven build related things
+Server/target/*
+Client/target/*
