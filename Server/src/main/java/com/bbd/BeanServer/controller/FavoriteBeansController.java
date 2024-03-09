@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-class BeansController {
+class FavoriteBeansController {
 
     @Autowired
     private FavoriteBeanRepository beansRepository;
