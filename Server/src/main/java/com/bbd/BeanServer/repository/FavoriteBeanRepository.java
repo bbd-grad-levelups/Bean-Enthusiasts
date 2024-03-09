@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.bbd.BeanServer.model.FavoriteBean;
 
-public interface BeansRepository extends JpaRepository<FavoriteBean, Long>{
+public interface FavoriteBeanRepository extends JpaRepository<FavoriteBean, Long>{
 
 }
 
