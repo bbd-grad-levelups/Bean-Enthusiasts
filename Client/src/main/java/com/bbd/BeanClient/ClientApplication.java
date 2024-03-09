@@ -12,44 +12,46 @@ import java.util.Scanner;
 @SpringBootApplication
 public class ClientApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(ClientApplication.class, args);
-  }
+    public static void main(String[] args) {
+        SpringApplication.run(ClientApplication.class, args);
+    }
 
-	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-		return builder.build();
-	}
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
 
-	@Bean
-	@ConditionalOnProperty(name = "app.run", havingValue = "true", matchIfMissing = true)
-	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
-		return args -> {
-      System.out.println("Welcome... to BEANS");
-      Scanner scanner = new Scanner(System.in);
-      String consuming = args.length > 0 ? args[0] : "1";
-      String resource;
-      String quote;
-      
-      boolean running = true;
-      while (running) {
+    @Bean
+    @ConditionalOnProperty(name = "app.run", havingValue = "true", matchIfMissing = true)
+    public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
+        return args -> {
+            System.out.println("Welcome... to BEANS");
+            Scanner scanner = new Scanner(System.in);
+            String consuming = args.length > 0 ? args[0] : "1";
+            String resource;
+            String quote;
+            String favBeansUrl = "http://localhost:5000/favoritebeans";
+            String favBeans;
+            boolean running = true;
+            while (running) {
 
-        resource = "http://localhost:8080/test/" + consuming;
-        quote = restTemplate.getForObject(resource, String.class);
-        
-        System.out.println("Received: " + quote);
-        System.out.println("New input? : ");
-        consuming = scanner.nextLine();
-        if (consuming.equals(""))
-        {
-          running = false;
-          scanner.close();
-        }
+                // resource = "http://localhost:8080/test/" + consuming;
+                // quote = restTemplate.getForObject(resource, String.class);
+                favBeans = restTemplate.getForObject(favBeansUrl, String.class);
+                System.out.println("Your fav beans are " + favBeans);
+                //System.out.println("Received: " + quote);
+                System.out.println("New input? : ");
+                consuming = scanner.nextLine();
+                if (consuming.equals(""))
+                {
+                    running = false;
+                    scanner.close();
+                }
 
 
-      }
-		};
-    
-	}
+            }
+        };
+
+    }
 
 }
