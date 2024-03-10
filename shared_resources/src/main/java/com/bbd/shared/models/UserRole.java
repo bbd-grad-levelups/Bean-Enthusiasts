@@ -1,4 +1,4 @@
-package com.bbd.BeanServer.model;
+package com.bbd.shared.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,10 +13,10 @@ import jakarta.persistence.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tag {
+public class UserRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int tag_id;
-    String tag_name;
+    int user_role_id;
+    String role_name;
 }

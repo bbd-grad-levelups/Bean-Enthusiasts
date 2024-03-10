@@ -6,16 +6,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.bbd.BeanClient.model.FavoriteBean;
+import com.bbd.BeanClient.requestmodel.BanBeanRequest;
+
 import java.util.Scanner;
 
 @SpringBootApplication
 public class ClientApplication {
+
+
+    private final String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
         SpringApplication.run(ClientApplication.class, args);
@@ -34,9 +42,14 @@ public class ClientApplication {
 
             createPost();
             retrieveFavoriteBeans();
+            banBean(1, true);
+
             Scanner scanner = new Scanner(System.in);
             String consuming = args.length > 0 ? args[0] : "1";
             String quote;
+
+            String favBeansUrl = endpoint + "/favoritebeans";
+            String favBeans;
 
             boolean running = true;
             while (running) {
@@ -95,6 +108,25 @@ public class ClientApplication {
         System.out.println("Fav beans are " + favBeans);
 
         return favBeans;
+    }
+
+    private boolean banBean(int bean_id, boolean new_status) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        System.out.println("Making endpoint");
+        // Define request URL
+        String url = endpoint + "/favoritebean/ban";
+        System.out.println(url);
+        // Define request body
+        BanBeanRequest request = new BanBeanRequest(bean_id, new_status);
+
+        // Send POST request and get response
+        ResponseEntity<FavoriteBean> response = restTemplate.postForEntity(url, request, FavoriteBean.class);
+
+        // Print response
+        System.out.println("Response status code: " + response.getStatusCode());
+        System.out.println("Response body: " + response.getBody());
+        return true;
     }
 
 }

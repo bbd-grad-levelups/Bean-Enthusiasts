@@ -1,4 +1,4 @@
-package com.bbd.BeanServer.model;
+package com.bbd.shared.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,15 +9,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.sql.Timestamp;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostReaction {
+public class Reaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int post_reaction_id;
-    int post_id;
     int reaction_id;
+    int user_id;
+    int reaction_type_id;
+    Timestamp date_of_reaction;
 }

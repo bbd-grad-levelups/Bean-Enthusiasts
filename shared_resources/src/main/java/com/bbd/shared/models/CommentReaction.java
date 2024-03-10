@@ -1,4 +1,4 @@
-package com.bbd.BeanServer.model;
+package com.bbd.shared.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,12 +13,11 @@ import jakarta.persistence.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comment {
+public class CommentReaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int comment_reaction_id;
     int comment_id;
-    int post_id;
-    int user_id;
-    String comment_info;
+    int reaction_id;
 }
