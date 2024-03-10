@@ -3,11 +3,9 @@ package com.bbd.BeanServer.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,18 +13,15 @@ import com.bbd.BeanServer.assembler.ModelAssembler;
 import com.bbd.shared.models.*;
 import com.bbd.BeanServer.repository.FavoriteBeanRepository;
 import com.bbd.BeanServer.repository.UserRepository;
-import com.bbd.BeanServer.request_model.BanBeanRequest;
-import com.bbd.BeanServer.service.FavoriteBeanService;
 import com.bbd.BeanServer.service.GreetingService;
 import com.bbd.shared.models.FavoriteBean;
 import com.bbd.shared.models.Greeting;
+import com.bbd.shared.request_model.BanBeanRequest;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 
 @RestController
 class TestController {
@@ -50,6 +45,7 @@ class TestController {
 
   }
   
+  @SuppressWarnings("null")
   @GetMapping("/test")
   CollectionModel<EntityModel<Greeting>> all() {
 
@@ -66,6 +62,7 @@ class TestController {
     return greetingAssembler.toModel(greetingData);
   }
   
+  @SuppressWarnings("null")
   @GetMapping("/test/user")
   CollectionModel<EntityModel<Users>> allUsers() {
     List <EntityModel<Users>> users = userRepository.findAll().stream()

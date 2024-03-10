@@ -1,4 +1,4 @@
-package com.bbd.BeanServer.request_model;
+package com.bbd.shared.request_model;
 
 import io.micrometer.common.lang.NonNull;
 import lombok.AllArgsConstructor;

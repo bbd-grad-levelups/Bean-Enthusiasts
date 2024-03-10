@@ -23,7 +23,7 @@ import java.util.Scanner;
 public class ClientApplication {
 
 
-    private final String endpoint = "http://localhost:5000";
+    private final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
         SpringApplication.run(ClientApplication.class, args);
@@ -40,24 +40,18 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            createPost();
-            retrieveFavoriteBeans();
-            banBean(1, true);
+            // createPost();
+            // retrieveFavorite Beans();
+            boolean beanResult =banBean(1, true);
+            
+            System.out.println(String.format("bean result: %s", beanResult));
 
             Scanner scanner = new Scanner(System.in);
             String consuming = args.length > 0 ? args[0] : "1";
-            String quote;
-
-            String favBeansUrl = endpoint + "/favoritebeans";
-            String favBeans;
 
             boolean running = true;
             while (running) {
 
-                // resource = "http://localhost:8080/test/" + consuming;
-                // quote = restTemplate.getForObject(resource, String.class);
-
-                //System.out.println("Received: " + quote);
                 System.out.println("New input? : ");
                 consuming = scanner.nextLine();
                 if (consuming.equals("")) {
@@ -81,7 +75,7 @@ public class ClientApplication {
         postParams.put("title", "My Post");
         postParams.put("content", "This is the content of my post");
 
-        String createPostUrl = "http://localhost:5000/createpost";
+        String createPostUrl = endpoint + "/createpost";
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(postParams);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -99,7 +93,7 @@ public class ClientApplication {
      * Fetch Favorite Beans
      */
     public static String retrieveFavoriteBeans() {
-        String favBeansUrl = "http://localhost:5000/favoritebeans";
+        String favBeansUrl = endpoint + "/favoritebeans";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -113,10 +107,9 @@ public class ClientApplication {
     private boolean banBean(int bean_id, boolean new_status) {
         RestTemplate restTemplate = new RestTemplate();
 
-        System.out.println("Making endpoint");
         // Define request URL
         String url = endpoint + "/favoritebean/ban";
-        System.out.println(url);
+
         // Define request body
         BanBeanRequest request = new BanBeanRequest(bean_id, new_status);
 
@@ -126,7 +119,7 @@ public class ClientApplication {
         // Print response
         System.out.println("Response status code: " + response.getStatusCode());
         System.out.println("Response body: " + response.getBody());
-        return true;
+        return response.getStatusCode().is2xxSuccessful();
     }
 
 }

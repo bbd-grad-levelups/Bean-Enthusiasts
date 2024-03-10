@@ -1,7 +1,6 @@
 package com.bbd.BeanServer.controller;
 
 import com.bbd.BeanServer.assembler.ModelAssembler;
-import com.bbd.BeanServer.repository.FavoriteBeanRepository;
 import com.bbd.BeanServer.service.FavoriteBeanService;
 import com.bbd.shared.models.FavoriteBean;
 
@@ -23,6 +22,7 @@ class FavoriteBeanController {
     @Autowired
     private ModelAssembler<FavoriteBean> beansAssembler;
 
+    @SuppressWarnings("null")
     @GetMapping("/favoritebeans")
     CollectionModel<EntityModel<FavoriteBean>> all() {
         List<EntityModel<FavoriteBean>> greetings = favoriteBeanService.getAllFavoriteBean().stream()

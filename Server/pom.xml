@@ -54,7 +54,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-        <groupId>com.bbd</groupId>
+        	<groupId>com.bbd</groupId>
 			<artifactId>shared-project</artifactId>
 			<version>1.0.0</version>
 		</dependency>

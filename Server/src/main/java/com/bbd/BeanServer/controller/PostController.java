@@ -14,14 +14,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 @RestController
+@SuppressWarnings("unused")
 class PostController {
 
+    
     @Autowired
     private PostRepository beansRepository;
     @Autowired
