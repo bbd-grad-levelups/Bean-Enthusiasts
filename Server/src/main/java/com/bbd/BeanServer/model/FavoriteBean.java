@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class FavoriteBean {
 
@@ -25,7 +24,6 @@ public class FavoriteBean {
 
     @Column(name = "is_banned", nullable = false)
     private boolean banned;
-
 
     public FavoriteBean(String beanName, boolean banned) {
         this.beanName = beanName;

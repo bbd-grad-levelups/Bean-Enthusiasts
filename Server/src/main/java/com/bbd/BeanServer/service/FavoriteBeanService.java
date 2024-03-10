@@ -19,9 +19,9 @@ public class FavoriteBeanService {
     @Autowired
     private FavoriteBeanRepository repository;
 
-    public List<FavoriteBean> getAllFavoriteBeans() {
-        List<FavoriteBean> FavoriteBeans = repository.findAll();
-        return FavoriteBeans.isEmpty() ? Collections.emptyList() : FavoriteBeans;
+    public List<FavoriteBean> getAllFavoriteBean() {
+        List<FavoriteBean> FavoriteBean = repository.findAll();
+        return FavoriteBean.isEmpty() ? Collections.emptyList() : FavoriteBean;
     }
 
 }
