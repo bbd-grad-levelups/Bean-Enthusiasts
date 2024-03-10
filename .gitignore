@@ -35,3 +35,4 @@ replay_pid*
 # Maven build related things
 Server/target/*
 Client/target/*
+shared_resources/target/*
