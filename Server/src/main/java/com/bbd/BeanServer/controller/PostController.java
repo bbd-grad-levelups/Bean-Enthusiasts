@@ -1,8 +1,8 @@
 package com.bbd.BeanServer.controller;
 
-import com.bbd.BeanServer.assembler.ModelAssembler;
 import com.bbd.BeanServer.repository.PostRepository;
 import com.bbd.BeanServer.service.PostService;
+import com.bbd.shared.assembler.ModelAssembler;
 import com.bbd.shared.models.Post;
 
 import org.springframework.beans.factory.annotation.Autowired;

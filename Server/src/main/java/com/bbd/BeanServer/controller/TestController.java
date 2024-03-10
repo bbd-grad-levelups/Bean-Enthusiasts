@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bbd.BeanServer.assembler.ModelAssembler;
+import com.bbd.shared.assembler.ModelAssembler;
 import com.bbd.shared.models.*;
 import com.bbd.BeanServer.repository.FavoriteBeanRepository;
 import com.bbd.BeanServer.repository.UserRepository;
