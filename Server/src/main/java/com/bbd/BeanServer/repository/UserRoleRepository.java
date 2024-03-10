@@ -2,7 +2,7 @@ package com.bbd.BeanServer.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.bbd.BeanServer.model.UserRole;
+import com.bbd.shared.models.UserRole;
 
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
   
