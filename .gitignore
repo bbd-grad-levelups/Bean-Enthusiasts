@@ -26,6 +26,12 @@ replay_pid*
 # Visual Studio Code Workspace file
 .vscode
 
+#Terraform Stuff
+*.tfvars
+.terraform
+*.tfstate*
+*.lock*
+
 # Maven build related things
 Server/target/*
 Client/target/*
