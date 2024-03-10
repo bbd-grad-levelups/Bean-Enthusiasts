@@ -7,9 +7,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class FavoriteBean {
 
     @Id
@@ -22,9 +24,6 @@ public class FavoriteBean {
 
     @Column(name = "is_banned", nullable = false)
     private boolean banned;
-
-    public FavoriteBean() {
-    }
 
     public FavoriteBean(String beanName, boolean banned) {
         this.beanName = beanName;
