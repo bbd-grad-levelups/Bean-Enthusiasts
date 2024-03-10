@@ -7,11 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Post {
 
     @Id
@@ -33,9 +35,6 @@ public class Post {
 
     @Column(name = "date_posted")
     private Timestamp datePosted;
-
-    public Post() {
-    }
 
     public Post(int userId, int tagId, String postTitle, String postContent, Timestamp datePosted) {
         this.userId = userId;

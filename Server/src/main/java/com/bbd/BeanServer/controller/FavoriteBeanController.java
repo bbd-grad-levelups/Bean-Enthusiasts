@@ -19,14 +19,14 @@ class FavoriteBeanController {
     @Autowired
     private FavoriteBeanRepository beansRepository;
     @Autowired
-    private FavoriteBeanService FavoriteBeanervice;
+    private FavoriteBeanService favoriteBeanService;
 
     @Autowired
     private ModelAssembler<FavoriteBean> beansAssembler;
 
     @GetMapping("/favoritebeans")
     CollectionModel<EntityModel<FavoriteBean>> all() {
-        List<EntityModel<FavoriteBean>> greetings = FavoriteBeanervice.getAllFavoriteBean().stream()
+        List<EntityModel<FavoriteBean>> greetings = favoriteBeanService.getAllFavoriteBean().stream()
                 .map(beansAssembler::toModel).collect(Collectors.toList());
         return CollectionModel.of(greetings);
     }
