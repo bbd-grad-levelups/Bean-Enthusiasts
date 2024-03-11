@@ -1,6 +1,6 @@
 package com.bbd.BeanServer.service;
 
-import com.bbd.shared.models.CommentReactions;
+import com.bbd.shared.models.CommentReaction;
 
 import com.bbd.BeanServer.repository.CommentReactionRepository;
 import com.bbd.BeanServer.repository.CommentRepository;
@@ -19,7 +19,7 @@ public class CommentReactionService {
     @Autowired
     private CommentRepository commentRepository;
 
-    public CommentReactions createCommentReaction(CommentReactions newCommentReaction) {
+    public CommentReaction createCommentReaction(CommentReaction newCommentReaction) {
         return commentReactionRepository.save(newCommentReaction);
     }
 }

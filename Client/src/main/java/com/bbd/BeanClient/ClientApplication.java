@@ -1,6 +1,6 @@
 package com.bbd.BeanClient;
 
-import com.bbd.shared.models.CommentReactions;
+import com.bbd.shared.models.CommentReaction;
 import com.bbd.shared.models.Post;
 import com.bbd.shared.models.Reaction;
 import org.springframework.boot.CommandLineRunner;
@@ -133,12 +133,12 @@ public class ClientApplication {
         int reactionTypeId = 2;
         int commentId = 1;
 
-//        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-//        Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReactions newCommentReaction = new CommentReactions(userId, reactionTypeId, commentId);
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
+        CommentReaction newCommentReaction = new CommentReaction(userId, reactionTypeId, commentId);
 
         Map<String, Object> requestBody = new HashMap<>();
-//        requestBody.put("reaction", newReaction);
+        requestBody.put("reaction", newReaction);
         requestBody.put("commentReaction", newCommentReaction);
 
 

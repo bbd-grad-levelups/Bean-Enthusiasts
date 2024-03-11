@@ -17,15 +17,15 @@ public class Reaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int Reactions_id;
+    int reaction_id;
     int user_id;
-    int Reactions_type_id;
-    Timestamp date_of_Reactions;
+    int reaction_type_id;
+    Timestamp date_of_reaction;
 
-    public Reaction(int user_id, int Reactions_type_id, Timestamp date_of_Reactions) {
+    public Reaction(int user_id, int reaction_type_id, Timestamp date_of_reaction) {
         this.user_id = user_id;
-        this.Reactions_type_id = Reactions_type_id;
-        this.date_of_Reactions = date_of_Reactions;
+        this.reaction_type_id = reaction_type_id;
+        this.date_of_reaction = date_of_reaction;
 
     }
 }
