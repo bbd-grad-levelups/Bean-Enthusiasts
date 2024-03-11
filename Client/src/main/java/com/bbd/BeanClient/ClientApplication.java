@@ -6,16 +6,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.bbd.BeanClient.model.FavoriteBean;
+import com.bbd.BeanClient.requestmodel.BanBeanRequest;
+
 import java.util.Scanner;
 
 @SpringBootApplication
 public class ClientApplication {
+
+
+    private final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
         SpringApplication.run(ClientApplication.class, args);
@@ -32,19 +40,18 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            createPost();
-            retrieveFavoriteBeans();
+            // createPost();
+            // retrieveFavorite Beans();
+            boolean beanResult =banBean(1, true);
+            
+            System.out.println(String.format("bean result: %s", beanResult));
+
             Scanner scanner = new Scanner(System.in);
             String consuming = args.length > 0 ? args[0] : "1";
-            String quote;
 
             boolean running = true;
             while (running) {
 
-                // resource = "http://localhost:8080/test/" + consuming;
-                // quote = restTemplate.getForObject(resource, String.class);
-
-                //System.out.println("Received: " + quote);
                 System.out.println("New input? : ");
                 consuming = scanner.nextLine();
                 if (consuming.equals("")) {
@@ -68,7 +75,7 @@ public class ClientApplication {
         postParams.put("title", "My Post");
         postParams.put("content", "This is the content of my post");
 
-        String createPostUrl = "http://localhost:5000/createpost";
+        String createPostUrl = endpoint + "/createpost";
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(postParams);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -86,7 +93,7 @@ public class ClientApplication {
      * Fetch Favorite Beans
      */
     public static String retrieveFavoriteBeans() {
-        String favBeansUrl = "http://localhost:5000/favoritebeans";
+        String favBeansUrl = endpoint + "/favoritebeans";
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -95,6 +102,24 @@ public class ClientApplication {
         System.out.println("Fav beans are " + favBeans);
 
         return favBeans;
+    }
+
+    private boolean banBean(int bean_id, boolean new_status) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Define request URL
+        String url = endpoint + "/favoritebean/ban";
+
+        // Define request body
+        BanBeanRequest request = new BanBeanRequest(bean_id, new_status);
+
+        // Send POST request and get response
+        ResponseEntity<FavoriteBean> response = restTemplate.postForEntity(url, request, FavoriteBean.class);
+
+        // Print response
+        System.out.println("Response status code: " + response.getStatusCode());
+        System.out.println("Response body: " + response.getBody());
+        return response.getStatusCode().is2xxSuccessful();
     }
 
 }

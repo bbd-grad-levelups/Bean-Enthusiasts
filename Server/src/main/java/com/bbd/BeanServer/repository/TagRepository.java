@@ -2,9 +2,8 @@ package com.bbd.BeanServer.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.bbd.shared.models.*;
+import com.bbd.shared.models.Tag;
 
-public interface UserRepository extends JpaRepository<Users, Long>{
+public interface TagRepository extends JpaRepository<Tag, Long> {
   
 }
-

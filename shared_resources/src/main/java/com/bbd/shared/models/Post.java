@@ -1,4 +1,4 @@
-package com.bbd.BeanServer.model;
+package com.bbd.shared.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
