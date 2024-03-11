@@ -13,12 +13,16 @@ import jakarta.persistence.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comment {
+public class CommentReactions {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int comment_reaction_id;
     int comment_id;
-    int post_id;
-    int user_id;
-    String comment_info;
+    int reaction_id;
+
+    public CommentReactions(int comment_id, int reaction_id) {
+        this.comment_id = comment_id;
+        this.reaction_id = reaction_id;
+    }
 }
