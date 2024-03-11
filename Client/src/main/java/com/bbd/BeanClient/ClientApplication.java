@@ -135,7 +135,7 @@ public class ClientApplication {
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(userId, reactionTypeId, commentId);
+        CommentReaction newCommentReaction = new CommentReaction(reactionTypeId, commentId);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);
