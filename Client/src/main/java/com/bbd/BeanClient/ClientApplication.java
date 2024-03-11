@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,27 +41,33 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            // createPost();
-            // retrieveFavorite Beans();
-            boolean beanResult =banBean(1, true);
-            
-            System.out.println(String.format("bean result: %s", beanResult));
 
-            Scanner scanner = new Scanner(System.in);
-            String consuming = args.length > 0 ? args[0] : "1";
+            // Running tests
+            try {
+                boolean beanResult =banBean(1, true);
 
-            boolean running = true;
-            while (running) {
-
-                System.out.println("New input? : ");
-                consuming = scanner.nextLine();
-                if (consuming.equals("")) {
-                    running = false;
-                    scanner.close();
-                }
-
-
+                System.out.println(String.format("bean result: %s", beanResult));
+            } catch (Exception e) {
+                System.out.println("Nope, sorry. Error: " + e.toString());
             }
+            
+            
+            System.out.println("Tests completed, starting client");
+
+            while (true) {
+                System.out.print("\n\n>");
+                String userInput = UserInput.scanner.nextLine();
+                if (Arrays.asList("quit", "exit", "terminate").contains(userInput)) {
+                    System.out.println("It's bean a pleasure! Goodbye");
+                    UserInput.scanner.close();
+                    break;
+                }
+                else
+                {
+                    UserInput.processCommand(userInput);
+                }
+            }
+            System.exit(0);
         };
 
     }

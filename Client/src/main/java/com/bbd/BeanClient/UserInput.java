@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 
 public class UserInput {
-    private static Scanner scanner = new Scanner(System.in);
+    public static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
         String userInput = "";
         while(true){
@@ -18,7 +18,7 @@ public class UserInput {
     }
 
 
-    private static void processCommand(String str){
+    public static void processCommand(String str){
         List<String> commandElements = Arrays.stream(str.split(" ", -2))
           .collect(Collectors.toList());
 
