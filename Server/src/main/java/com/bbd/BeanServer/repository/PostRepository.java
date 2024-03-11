@@ -2,9 +2,9 @@ package com.bbd.BeanServer.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.bbd.shared.models.*;
+import com.bbd.shared.models.Post;
 
-public interface UserRepository extends JpaRepository<Users, Long>{
-  
+public interface PostRepository extends JpaRepository<Post, Long> {
+
 }
 

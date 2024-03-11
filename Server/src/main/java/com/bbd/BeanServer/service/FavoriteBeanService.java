@@ -4,22 +4,23 @@ import java.util.Collections;
 import java.util.List;
 
 import com.bbd.BeanServer.repository.FavoriteBeanRepository;
+import com.bbd.shared.models.FavoriteBean;
+
+import lombok.NoArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bbd.BeanServer.model.FavoriteBean;
-
 @Service
+@NoArgsConstructor
 public class FavoriteBeanService {
 
-    private final FavoriteBeanRepository repository;
+    @Autowired
+    private FavoriteBeanRepository repository;
 
-    public FavoriteBeanService(FavoriteBeanRepository newRepository) {
-        repository = newRepository;
-    }
-
-    public List<FavoriteBean> getAllFavoriteBeans() {
-        List<FavoriteBean> FavoriteBeans = repository.findAll();
-        return FavoriteBeans.isEmpty() ? Collections.emptyList() : FavoriteBeans;
+    public List<FavoriteBean> getAllFavoriteBean() {
+        List<FavoriteBean> FavoriteBean = repository.findAll();
+        return FavoriteBean.isEmpty() ? Collections.emptyList() : FavoriteBean;
     }
 
 }
