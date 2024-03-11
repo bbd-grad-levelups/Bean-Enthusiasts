@@ -2,6 +2,7 @@ package com.bbd.BeanClient;
 
 import com.bbd.shared.models.CommentReaction;
 import com.bbd.shared.models.Post;
+import com.bbd.shared.models.PostReaction;
 import com.bbd.shared.models.Reaction;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -45,10 +46,11 @@ public class ClientApplication {
 
             createPost();
             commentReaction();
+            postReaction();
             // retrieveFavorite Beans();
             boolean beanResult = banBean(1, true);
 
-            System.out.println(String.format("bean result: %s", beanResult));
+            System.out.println(String.format("  bean result: %s", beanResult));
 
             Scanner scanner = new Scanner(System.in);
             String consuming = args.length > 0 ? args[0] : "1";
@@ -135,7 +137,7 @@ public class ClientApplication {
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(userId, reactionTypeId, commentId);
+        CommentReaction newCommentReaction = new CommentReaction(reactionTypeId, commentId);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);
@@ -150,5 +152,35 @@ public class ClientApplication {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
+
+    /*
+       Can use this to like /dislike comment
+   */
+    private static void postReaction() {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = endpoint + "/postreaction";
+
+        int userId = 0;
+        int reactionTypeId = 2;
+        int postId = 1;
+
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
+        PostReaction newPostReaction = new PostReaction(postId, reactionTypeId);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("reaction", newReaction);
+        requestBody.put("postReaction", newPostReaction);
+
+
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(url, requestBody, Void.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("Post upvoted successfully");
+        } else {
+            System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
+        }
+    }
+
 
 }
