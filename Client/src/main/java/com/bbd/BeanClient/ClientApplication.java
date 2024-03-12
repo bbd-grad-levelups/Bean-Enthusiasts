@@ -1,7 +1,5 @@
 package com.bbd.BeanClient;
 
-import com.bbd.shared.models.CommentReaction;
-import com.bbd.shared.models.Post;
 import com.bbd.shared.models.PostReaction;
 import com.bbd.shared.models.Reaction;
 import org.springframework.boot.CommandLineRunner;
@@ -46,11 +44,10 @@ public class ClientApplication {
 
             createPost();
             commentReaction();
-            postReaction();
             // retrieveFavorite Beans();
             boolean beanResult = banBean(1, true);
 
-            System.out.println(String.format("  bean result: %s", beanResult));
+            System.out.println(String.format("bean result: %s", beanResult));
 
             Scanner scanner = new Scanner(System.in);
             String consuming = args.length > 0 ? args[0] : "1";
@@ -89,7 +86,6 @@ public class ClientApplication {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
-
 
     /*
      * Fetch Favorite Beans
@@ -154,8 +150,8 @@ public class ClientApplication {
     }
 
     /*
-       Can use this to like /dislike comment
-   */
+    Can use this to like /dislike comment
+    */
     private static void postReaction() {
         RestTemplate restTemplate = new RestTemplate();
         String url = endpoint + "/postreaction";
@@ -181,6 +177,5 @@ public class ClientApplication {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
-
 
 }
