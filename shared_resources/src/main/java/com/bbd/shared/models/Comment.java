@@ -9,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.sql.Timestamp;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -21,4 +23,12 @@ public class Comment {
     int post_id;
     int user_id;
     String comment_info;
+    Timestamp datePosted;
+
+    public Comment(int post_id, int user_id, String comment_info, Timestamp datePosted) {
+        this.post_id = post_id;
+        this.user_id = user_id;
+        this.comment_info = comment_info;
+        this.datePosted = datePosted;
+    }
 }
