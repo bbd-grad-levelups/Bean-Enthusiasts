@@ -1,6 +1,7 @@
 package com.bbd.BeanClient;
 
 import com.bbd.shared.models.*;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -50,7 +51,7 @@ public class ClientApplication {
 
                 createPost();
                 commentReaction();
-
+                createComment();
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
@@ -93,6 +94,23 @@ public class ClientApplication {
         }
     }
 
+    /*
+     * Create Comment
+     */
+    private static void createComment() {
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Comment newComment = new Comment(1, 2, "This is my comment!", currentTime);
+        String createCommentUrl = endpoint + "/createcomment";
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createCommentUrl, newComment, Void.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("Post created successfully: " + responseEntity.getStatusCode());
+        } else {
+            System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
+        }
+    }
 
     /*
      * Fetch Favorite Beans
