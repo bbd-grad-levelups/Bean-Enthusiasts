@@ -13,7 +13,7 @@ import jakarta.persistence.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comments {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
