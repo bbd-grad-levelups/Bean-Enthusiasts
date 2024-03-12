@@ -119,7 +119,7 @@ VALUES
 ('Tag3');
 
 -- ReactionType Table
-INSERT INTO reaction_type (bean_name)
+INSERT INTO reaction_type (reaction_name)
 VALUES
 ('Like'),
 ('Dislike');

@@ -20,4 +20,9 @@ public class PostReaction {
     int post_reaction_id;
     int post_id;
     int reaction_id;
+
+    public PostReaction(int post_id, int reaction_id) {
+        this.post_id = post_id;
+        this.reaction_id = reaction_id;
+    }
 }
