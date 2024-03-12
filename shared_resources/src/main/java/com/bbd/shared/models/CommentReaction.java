@@ -20,4 +20,9 @@ public class CommentReaction {
     int comment_reaction_id;
     int comment_id;
     int reaction_id;
+
+    public CommentReaction(int comment_id, int reaction_id) {
+        this.comment_id = comment_id;
+        this.reaction_id = reaction_id;
+    }
 }
