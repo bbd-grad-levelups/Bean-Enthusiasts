@@ -1,0 +1,87 @@
+# This is a basic workflow to help you get started with Actions
+name: Deploy Server to AWS
+
+# Controls when the action will run. Invokes the workflow on push events but only for the main branch
+on:
+  pull_request:
+    branches: [ release ]
+    types: [ closed ]
+
+env:
+  AWS_REGION : eu-west-1
+  APPLICATION_NAME: BeanServer
+  ENVIRONMENT_NAME: BeanServer-env
+  BUCKET_NAME: bean-server-deployer-bucket
+  APPLICATION_PROPERTIES_PATH: Server/src/main/resources
+
+permissions:
+      id-token: write
+      contents: read
+jobs:
+
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      
+      - name: Extract Version from Pull Request Title
+        id: extract_version
+        run: echo "::set-output name=version::$(echo ${{ github.event.pull_request.title }} | cut -d ' ' -f 1)"
+
+      - name: Copy Secrets to application.properties
+        run: |
+          sed -i "s|{{DB_URL}}|${{ secrets.DB_URL }}|g" ${{ env.APPLICATION_PROPERTIES_PATH }}/application.properties
+          sed -i "s|{{DB_USER}}|${{ secrets.DB_USER }}|g" ${{ env.APPLICATION_PROPERTIES_PATH }}/application.properties
+          sed -i "s|{{DB_PASSWORD}}|${{ secrets.DB_PASSWORD }}|g" ${{ env.APPLICATION_PROPERTIES_PATH }}/application.properties
+          cat ${{ env.APPLICATION_PROPERTIES_PATH }}/application.properties
+      
+      - name: Install Java
+        uses: actions/setup-java@v2
+        with: 
+          distribution: 'adopt'
+          java-version: '21'
+
+      - name: Build Server Application
+        run: |
+          cd shared_resources
+          mvn clean install
+          cd ../Server
+          mvn clean package
+          zip -j -r target/${{ env.APPLICATION_NAME }}.zip target/*.jar
+      
+      - name: Install Elastic Beanstalk CLI
+        run: |
+          sudo apt-get install python3-pip
+          pip3 install awsebcli --upgrade --user
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::363615071302:role/GitHub_Actions
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Create S3 Bucket
+        run: |
+          aws s3 mb s3://${{ env.BUCKET_NAME }} --region ${{ env.AWS_REGION }}
+        continue-on-error: true
+
+      - name: Upload application package to S3
+        run: |
+          aws s3 cp Server/target/${{ env.APPLICATION_NAME }}.zip s3://${{ env.BUCKET_NAME }}/${{ env.APPLICATION_NAME }}.zip
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name ${{ env.APPLICATION_NAME }} \
+            --version-label ${{ steps.extract_version.outputs.version }} \
+            --source-bundle S3Bucket=${{ env.BUCKET_NAME }},S3Key=${{ env.APPLICATION_NAME }}.zip
+          aws elasticbeanstalk update-environment \
+            --application-name ${{ env.APPLICATION_NAME }} \
+            --environment-name ${{ env.ENVIRONMENT_NAME }} \
+            --version-label ${{ steps.extract_version.outputs.version }}
+          
+          
+    

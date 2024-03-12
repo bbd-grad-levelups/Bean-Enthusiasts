@@ -14,14 +14,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
+
 
 
 @SpringBootApplication
@@ -44,26 +45,8 @@ public class ClientApplication {
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
             System.out.println("Welcome... to BEANS");
-            //createPost();
-            //commentReaction();
-            createUserProfile();
-            //retrieveFavorite Beans();
-            boolean beanResult = banBean(1, true);
 
-            System.out.println(String.format("bean result: %s", beanResult));
-
-            Scanner scanner = new Scanner(System.in);
-            String consuming = args.length > 0 ? args[0] : "1";
-
-            boolean running = true;
-            while (running) {
-
-                System.out.println("New input? : ");
-                consuming = scanner.nextLine();
-                if (consuming.equals("")) {
-                    running = false;
-                    scanner.close();
-                }
+            
 
 
             // Running tests
@@ -71,14 +54,15 @@ public class ClientApplication {
                 boolean beanResult = banBean(1, true);
 
                 System.out.println(String.format("bean result: %s", beanResult));
-
+                
                 createPost();
                 commentReaction();
                 createComment();
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
-
+            
+            
             System.out.println("Tests completed, starting client");
 
             while (true) {
@@ -94,8 +78,8 @@ public class ClientApplication {
             }
             System.exit(0);
         };
-    };
-}
+
+    }
 
     /*
      * Create Post
