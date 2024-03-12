@@ -11,6 +11,10 @@ on:
 env:
   
   AWS_REGION : eu-west-1 #Change to reflect your Region
+  APPLICATION_NAME: BeanClient
+  RELEASE_VERSION: 2
+  BUCKET_NAME: DeployBucket
+
 
 # Permission can be added at job level or workflow level    
 permissions:
@@ -25,10 +29,52 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          role-to-assume: arn:aws:iam::574836245203:role/GitHubAction-AssumeRoleWithAction #change to reflect your IAM role’s ARN
+          role-to-assume: arn:aws:iam::363615071302:role/GitHub_Actions
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
-      # Hello from AWS: WhoAmI
-      - name: Sts GetCallerIdentity
+
+      - name: Install Java
+        uses: actions/setup-java@v2
+        with: 
+          distribution: 'adopt'
+          java-version: '21'
+
+      - name: Build Server Application
         run: |
-          aws sts get-caller-identity
+          cd shared_resources
+          mvn clean install
+          cd ../Server
+          mvn clean package
+          zip -r target/BeanClient.zip target/*.jar
+          cd target
+          ls
+          cd ..
+      
+      - name: Install Elastic Beanstalk CLI
+        run: |
+          sudo apt-get install python3-pip
+          pip3 install awsebcli --upgrade --user
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Check if S3 bucket exists
+        id: check_bucket
+        run: |
+          aws s3api head-bucket --bucket $S3_BUCKET_NAME 2>/dev/null || echo '{"BucketExists": false}'
+        continue-on-error: true
+      
+      - name: Create S3 Bucket
+        if: steps.check_bucket.outputs.BucketExists == 'false'
+        run: |
+          aws s3 mb s3://$${{ env.BUCKET_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name ${{ env.APPLICATION_NAME }} \
+            --version-label ${{ env.RELEASE_VERSION }} \
+            --source-bundle S3Bucket=${{ env.BUCKET_NAME }},S3Key=${{ env.APPLICATION_NAME }}.zip
+          aws elasticbeanstalk update-environment \
+            --application-name YourApplicationName \
+            --environment-name YourEnvironmentName \
+            --version-label YourVersionLabel
+    
