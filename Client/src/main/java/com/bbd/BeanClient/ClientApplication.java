@@ -21,6 +21,7 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
@@ -47,8 +48,8 @@ public class ClientApplication {
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
             System.out.println("Welcome... to BEANS");
-            createPost();
-            commentReaction();
+            //createPost();
+            //commentReaction();
             createUserProfile();
             //retrieveFavorite Beans();
             boolean beanResult = banBean(1, true);
@@ -71,17 +72,17 @@ public class ClientApplication {
 
 
             // Running tests
-            try {
-                boolean beanResult =banBean(1, true);
+            // try {
+            //     boolean beanResult = banBean(1, true);
 
-                System.out.println(String.format("bean result: %s", beanResult));
+            //     System.out.println(String.format("bean result: %s", beanResult));
                 
-                createPost();
-                commentReaction();
+            //     createPost();
+            //     commentReaction();
 
-            } catch (Exception e) {
-                System.out.println("Nope, sorry. Error: " + e.toString());
-            }
+            // } catch (Exception e) {
+            //     System.out.println("Nope, sorry. Error: " + e.toString());
+            // }
             
             
             System.out.println("Tests completed, starting client");
@@ -101,8 +102,8 @@ public class ClientApplication {
             }
             System.exit(0);
         };
-
-    }
+    };
+}
 
     /*
      * Create Post
@@ -124,13 +125,11 @@ public class ClientApplication {
     }
 
     private static void createUserProfile() {
-        Users newUser = new Users(1,5,"testingUser","I like beans");
+        Users newUser = new Users(1,10,"testingUser2","I like beans again");
         
         String createUserUrl = endpoint + "/createUserProfile";
         RestTemplate restTemplate = new RestTemplate();
-        System.out.println("1");
         ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
-        System.out.println("2");
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             System.out.println("User created successfully");
         } else {

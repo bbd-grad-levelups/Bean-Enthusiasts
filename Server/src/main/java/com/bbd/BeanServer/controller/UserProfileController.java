@@ -33,8 +33,6 @@ public class UserProfileController {
 
     @PostMapping("/createUserProfile")
     public ResponseEntity<Users> createUserProfile(@RequestBody Users newUser) {
-        System.out.println("BOINK");
-        System.out.println("New user: " + newUser);
         Users createdUser = CreateUserProfileService.createUserProfile(newUser);
         // Return the response with the created post and location header
         URI location = ServletUriComponentsBuilder
