@@ -1,7 +1,6 @@
 package com.bbd.BeanClient;
 
-import com.bbd.shared.models.PostReaction;
-import com.bbd.shared.models.Reaction;
+import com.bbd.shared.models.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,6 +43,7 @@ public class ClientApplication {
 
             createPost();
             commentReaction();
+            postReaction();
             // retrieveFavorite Beans();
             boolean beanResult = banBean(1, true);
 
@@ -121,8 +121,8 @@ public class ClientApplication {
     }
 
     /*
-        Can you use this to like /dislike comment
-    */
+     *   Can you use this to like /dislike comment
+     */
     private static void commentReaction() {
         RestTemplate restTemplate = new RestTemplate();
         String url = endpoint + "/commentreaction";
@@ -150,8 +150,8 @@ public class ClientApplication {
     }
 
     /*
-    Can use this to like /dislike comment
-    */
+     * Can use this to like /dislike comment
+     */
     private static void postReaction() {
         RestTemplate restTemplate = new RestTemplate();
         String url = endpoint + "/postreaction";
