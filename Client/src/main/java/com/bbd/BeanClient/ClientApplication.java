@@ -1,5 +1,6 @@
 package com.bbd.BeanClient;
 
+import com.bbd.shared.models.Comment;
 import com.bbd.shared.models.CommentReaction;
 import com.bbd.shared.models.Post;
 import com.bbd.shared.models.Reaction;
@@ -24,7 +25,6 @@ import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
 
 
-
 @SpringBootApplication
 public class ClientApplication {
 
@@ -46,23 +46,21 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            
-
 
             // Running tests
             try {
-                boolean beanResult =banBean(1, true);
+                boolean beanResult = banBean(1, true);
 
                 System.out.println(String.format("bean result: %s", beanResult));
-                
+
                 createPost();
                 commentReaction();
-
+                createComment();
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
-            
-            
+
+
             System.out.println("Tests completed, starting client");
 
             while (true) {
@@ -72,9 +70,7 @@ public class ClientApplication {
                     System.out.println("It's bean a pleasure! Goodbye");
                     UserInput.scanner.close();
                     break;
-                }
-                else
-                {
+                } else {
                     UserInput.processCommand(userInput);
                 }
             }
@@ -102,6 +98,23 @@ public class ClientApplication {
         }
     }
 
+    /*
+     * Create Comment
+     */
+    private static void createComment() {
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Comment newComment = new Comment(1, 2, "This is my comment!", currentTime);
+        String createCommentUrl = endpoint + "/createcomment";
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createCommentUrl, newComment, Void.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("Post created successfully: " + responseEntity.getStatusCode());
+        } else {
+            System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
+        }
+    }
 
     /*
      * Fetch Favorite Beans
