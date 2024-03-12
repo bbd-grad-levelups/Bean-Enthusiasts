@@ -1,5 +1,8 @@
 package com.bbd.BeanClient;
 
+import com.bbd.shared.models.CommentReaction;
+import com.bbd.shared.models.Post;
+import com.bbd.shared.models.Reaction;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,10 +10,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,10 +43,11 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            // createPost();
+            createPost();
+            commentReaction();
             // retrieveFavorite Beans();
-            boolean beanResult =banBean(1, true);
-            
+            boolean beanResult = banBean(1, true);
+
             System.out.println(String.format("bean result: %s", beanResult));
 
             Scanner scanner = new Scanner(System.in);
@@ -69,18 +73,13 @@ public class ClientApplication {
      * Create Post
      */
     private static void createPost() {
-        Map<String, Object> postParams = new HashMap<>();
-        postParams.put("userId", 1);
-        postParams.put("postId", 1);
-        postParams.put("title", "My Post");
-        postParams.put("content", "This is the content of my post");
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Post newPost = new Post(1, 1, "My Post", "This is the content of my post", currentTime);
 
         String createPostUrl = endpoint + "/createpost";
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(postParams);
-
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createPostUrl, requestEntity, Void.class);
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createPostUrl, newPost, Void.class);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             System.out.println("Post created successfully");
@@ -88,6 +87,7 @@ public class ClientApplication {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
+
 
     /*
      * Fetch Favorite Beans
@@ -120,6 +120,35 @@ public class ClientApplication {
         System.out.println("Response status code: " + response.getStatusCode());
         System.out.println("Response body: " + response.getBody());
         return response.getStatusCode().is2xxSuccessful();
+    }
+
+    /*
+        Can you use this to like /dislike comment
+    */
+    private static void commentReaction() {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = endpoint + "/commentreaction";
+
+        int userId = 0;
+        int reactionTypeId = 2;
+        int commentId = 1;
+
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
+        CommentReaction newCommentReaction = new CommentReaction(reactionTypeId, commentId);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("reaction", newReaction);
+        requestBody.put("commentReaction", newCommentReaction);
+
+
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(url, requestBody, Void.class);
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("Comment upvoted successfully");
+        } else {
+            System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
+        }
     }
 
 }
