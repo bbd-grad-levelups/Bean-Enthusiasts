@@ -13,14 +13,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+
 import java.sql.Timestamp;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
 
-import java.util.Scanner;
+
 
 @SpringBootApplication
 public class ClientApplication {
@@ -43,28 +46,39 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            createPost();
-            commentReaction();
-            // retrieveFavorite Beans();
-            boolean beanResult = banBean(1, true);
-
-            System.out.println(String.format("bean result: %s", beanResult));
-
-            Scanner scanner = new Scanner(System.in);
-            String consuming = args.length > 0 ? args[0] : "1";
-
-            boolean running = true;
-            while (running) {
-
-                System.out.println("New input? : ");
-                consuming = scanner.nextLine();
-                if (consuming.equals("")) {
-                    running = false;
-                    scanner.close();
-                }
+            
 
 
+            // Running tests
+            try {
+                boolean beanResult =banBean(1, true);
+
+                System.out.println(String.format("bean result: %s", beanResult));
+                
+                createPost();
+                commentReaction();
+
+            } catch (Exception e) {
+                System.out.println("Nope, sorry. Error: " + e.toString());
             }
+            
+            
+            System.out.println("Tests completed, starting client");
+
+            while (true) {
+                System.out.print("\n\n>");
+                String userInput = UserInput.scanner.nextLine();
+                if (Arrays.asList("quit", "exit", "terminate").contains(userInput)) {
+                    System.out.println("It's bean a pleasure! Goodbye");
+                    UserInput.scanner.close();
+                    break;
+                }
+                else
+                {
+                    UserInput.processCommand(userInput);
+                }
+            }
+            System.exit(0);
         };
 
     }
@@ -82,9 +96,9 @@ public class ClientApplication {
         ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createPostUrl, newPost, Void.class);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("Post created successfully");
+            System.out.println("Post created successfully: " + responseEntity.getStatusCode());
         } else {
-            System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCodeValue());
+            System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
         }
     }
 
