@@ -119,7 +119,7 @@ VALUES
 ('Tag3');
 
 -- ReactionType Table
-INSERT INTO reaction_type (bean_name)
+INSERT INTO reaction_type (reaction_name)
 VALUES
 ('Like'),
 ('Dislike');
@@ -142,11 +142,11 @@ VALUES
 
 
 -- Comment Table
-INSERT INTO comment (post_id, user_id, comment_info)
+INSERT INTO comment (post_id, user_id, comment_info, date_posted)
 VALUES
-(1, 2, 'Comment 1 on Post 1'),
-(2, 1, 'Comment 1 on Post 2'),
-(3, 3, 'Comment 1 on Post 3');
+(1, 2, 'Comment 1 on Post 1', NOW()),
+(2, 1, 'Comment 1 on Post 2', NOW()),
+(3, 3, 'Comment 1 on Post 3', NOW()),
 
 -- Reaction Table
 INSERT INTO reaction (user_id, reaction_type_id, date_of_reaction)

@@ -24,6 +24,7 @@ import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
 
 
+
 @SpringBootApplication
 public class ClientApplication {
 
@@ -45,26 +46,23 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
+            
+
 
             // Running tests
             try {
-                boolean beanResult = banBean(1, true);
+                boolean beanResult =banBean(1, true);
 
                 System.out.println(String.format("bean result: %s", beanResult));
+                
+                createPost();
+                commentReaction();
 
-
-                int t = calculateBeanKarmaForComment();
-                System.out.println("The comment karma is " + t);
-
-                int k = calculateBeanKarmaForUser();
-                System.out.println("The bean karma is " + k);
-                //createComment();
-                //postReaction();
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
-
-
+            
+            
             System.out.println("Tests completed, starting client");
 
             while (true) {
@@ -74,7 +72,9 @@ public class ClientApplication {
                     System.out.println("It's bean a pleasure! Goodbye");
                     UserInput.scanner.close();
                     break;
-                } else {
+                }
+                else
+                {
                     UserInput.processCommand(userInput);
                 }
             }
@@ -106,7 +106,7 @@ public class ClientApplication {
      * Create User Profile
      */
     private static void createUserProfile() {
-        Users newUser = new Users(1, 10, "testingUser2", "I like beans again");
+        Users newUser = new Users(1,10,"testingUser2","I like beans again");
 
         String createUserUrl = endpoint + "/createUserProfile";
         RestTemplate restTemplate = new RestTemplate();
@@ -124,7 +124,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(2, 4, "This is my comment!", currentTime);
+        Comment newComment = new Comment(1, 2, "This is my comment!", currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 
@@ -208,8 +208,8 @@ public class ClientApplication {
         String url = endpoint + "/postreaction";
 
         int userId = 0;
-        int reactionTypeId = 1;
-        int postId = 55;
+        int reactionTypeId = 2;
+        int postId = 1;
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
@@ -227,39 +227,6 @@ public class ClientApplication {
         } else {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
-    }
-
-    private int calculateBeanKarmaForUser() {
-        int user_id = 4;
-        RestTemplate restTemplate = new RestTemplate();
-        String url = endpoint + "/calculatebeankarmaforuser/{user_id}";
-        System.out.println("MY URL " + url);
-        // Specify the URL and the expected response type
-        int karma = restTemplate.getForObject(url, Integer.class, user_id);
-
-        return karma;
-    }
-
-    private int calculateBeanKarmaForPost() {
-        int post_id = 55;
-        RestTemplate restTemplate = new RestTemplate();
-        String url = endpoint + "/calculatebeankarmaforpost/{post_id}";
-
-        // Specify the URL and the expected response type
-        int karma = restTemplate.getForObject(url, Integer.class, post_id);
-
-        return karma;
-    }
-
-    private int calculateBeanKarmaForComment() {
-        int comment_id = 4;
-        RestTemplate restTemplate = new RestTemplate();
-        String url = endpoint + "/calculatebeankarmaforcomment/{comment_id}";
-
-        // Specify the URL and the expected response type
-        int karma = restTemplate.getForObject(url, Integer.class, comment_id);
-
-        return karma;
     }
 
 }
