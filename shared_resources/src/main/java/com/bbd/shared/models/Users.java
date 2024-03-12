@@ -22,8 +22,8 @@ public class Users {
     String username;
     String bio;
 
-    Users(int userRole, int favoriteBean, String username, String bio) {
-        this.user_id = userRole;
+    public Users(int userRole, int favoriteBean, String username, String bio) {
+        this.user_role_id = userRole;
         this.favorite_bean_id = favoriteBean;
         this.username = username;
         this.bio = bio;

@@ -1,6 +1,8 @@
 package com.bbd.BeanClient;
 
+
 import com.bbd.shared.models.*;
+
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +18,7 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
@@ -41,6 +44,26 @@ public class ClientApplication {
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
             System.out.println("Welcome... to BEANS");
+            //createPost();
+            //commentReaction();
+            createUserProfile();
+            //retrieveFavorite Beans();
+            boolean beanResult = banBean(1, true);
+
+            System.out.println(String.format("bean result: %s", beanResult));
+
+            Scanner scanner = new Scanner(System.in);
+            String consuming = args.length > 0 ? args[0] : "1";
+
+            boolean running = true;
+            while (running) {
+
+                System.out.println("New input? : ");
+                consuming = scanner.nextLine();
+                if (consuming.equals("")) {
+                    running = false;
+                    scanner.close();
+                }
 
 
             // Running tests
@@ -55,7 +78,6 @@ public class ClientApplication {
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
-
 
             System.out.println("Tests completed, starting client");
 
@@ -72,8 +94,8 @@ public class ClientApplication {
             }
             System.exit(0);
         };
-
-    }
+    };
+}
 
     /*
      * Create Post
@@ -95,6 +117,23 @@ public class ClientApplication {
     }
 
     /*
+     * Create User Profile
+     */
+    private static void createUserProfile() {
+        Users newUser = new Users(1,10,"testingUser2","I like beans again");
+        
+        String createUserUrl = endpoint + "/createUserProfile";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("User created successfully");
+        } else {
+            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
+        }
+    }
+
+
+    /*
      * Create Comment
      */
     private static void createComment() {
@@ -111,6 +150,7 @@ public class ClientApplication {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
         }
     }
+
 
     /*
      * Fetch Favorite Beans
