@@ -3,6 +3,8 @@ package com.bbd.BeanClient;
 import com.bbd.shared.models.CommentReaction;
 import com.bbd.shared.models.Post;
 import com.bbd.shared.models.Reaction;
+import com.bbd.shared.models.Users;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,10 +44,11 @@ public class ClientApplication {
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
             System.out.println("Welcome... to BEANS");
-
+            
             createPost();
             commentReaction();
-            // retrieveFavorite Beans();
+            createUserProfile();
+            //retrieveFavorite Beans();
             boolean beanResult = banBean(1, true);
 
             System.out.println(String.format("bean result: %s", beanResult));
@@ -85,6 +88,21 @@ public class ClientApplication {
             System.out.println("Post created successfully");
         } else {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCodeValue());
+        }
+    }
+
+    private static void createUserProfile() {
+        Users newUser = new Users(1,5,"testingUser","I like beans");
+        
+        String createUserUrl = endpoint + "/createUserProfile";
+        RestTemplate restTemplate = new RestTemplate();
+        System.out.println("1");
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
+        System.out.println("2");
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("User created successfully");
+        } else {
+            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
 
