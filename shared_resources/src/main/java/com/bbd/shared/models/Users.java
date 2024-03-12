@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,7 @@ public class User {
     String username;
     String bio;
 
-    User(int userRole, int favoriteBean, String username, String bio) {
+    Users(int userRole, int favoriteBean, String username, String bio) {
         this.user_id = userRole;
         this.favorite_bean_id = favoriteBean;
         this.username = username;
