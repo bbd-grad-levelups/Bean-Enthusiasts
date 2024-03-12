@@ -56,7 +56,7 @@ jobs:
           mvn clean install
           cd ../Server
           mvn clean package
-          zip -r target/${{ env.APPLICATION_NAME }}.zip target/*.jar
+          zip -j -r target/${{ env.APPLICATION_NAME }}.zip target/*.jar
       
       - name: Install Elastic Beanstalk CLI
         run: |
