@@ -3,28 +3,20 @@ name: Deploy Server to AWS
 
 # Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on:
-  push:
-    branches: [ feature/enhanced_deployments ]
   pull_request:
-    branches: [ No_branch ]
+    branches: [ release ]
+    types: [ closed ]
 
-    # pull_request:
-    #   branches: [ release ]
-    #   types: [ closed ]
-  
 env:
-  
-  AWS_REGION : eu-west-1 #Change to reflect your Region
+  AWS_REGION : eu-west-1
   APPLICATION_NAME: BeanServer
   ENVIRONMENT_NAME: BeanServer-env
   BUCKET_NAME: bean-server-deployer-bucket
   APPLICATION_PROPERTIES_PATH: Server/src/main/resources
 
-
-# Permission can be added at job level or workflow level    
 permissions:
-      id-token: write   # This is required for requesting the JWT
-      contents: read    # This is required for actions/checkout
+      id-token: write
+      contents: read
 jobs:
 
   Deploy:
@@ -35,7 +27,7 @@ jobs:
       
       - name: Extract Version from Pull Request Title
         id: extract_version
-        run: echo "::set-output name=version::$(echo ${{ github.event.head_commit.message }} | cut -d ' ' -f 1)"
+        run: echo "::set-output name=version::$(echo ${{ github.event.pull_request.title }} | cut -d ' ' -f 1)"
 
       - name: Copy Secrets to application.properties
         run: |
