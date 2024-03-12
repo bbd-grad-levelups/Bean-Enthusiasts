@@ -29,19 +29,9 @@ class PostController {
     private ModelAssembler<Post> postAssembler;
 
     @PostMapping("/createpost")
-    public ResponseEntity<Post> createPost(@RequestBody Map<String, Object> postParams) {
-        // Extract parameters from the request body
-        int userId = Integer.parseInt((postParams.get("userId").toString()));
-        int postId = Integer.parseInt((postParams.get("postId").toString()));
-        String title = postParams.get("title").toString();
-        String content = postParams.get("content").toString();
+    public ResponseEntity<Post> createPost(@RequestBody Post newPost) {
 
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-
-        Post newPost = new Post(userId, postId, title, content, currentTime);
-        // Call the postService to create the post
         Post createdPost = postService.createPost(newPost);
-
         // Return the response with the created post and location header
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

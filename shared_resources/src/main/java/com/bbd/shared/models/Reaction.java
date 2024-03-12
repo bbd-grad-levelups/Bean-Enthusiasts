@@ -1,6 +1,5 @@
 package com.bbd.shared.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,6 @@ import java.sql.Timestamp;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class Reaction {
 
@@ -23,4 +21,11 @@ public class Reaction {
     int user_id;
     int reaction_type_id;
     Timestamp date_of_reaction;
+
+    public Reaction(int user_id, int reaction_type_id, Timestamp date_of_reaction) {
+        this.user_id = user_id;
+        this.reaction_type_id = reaction_type_id;
+        this.date_of_reaction = date_of_reaction;
+
+    }
 }
