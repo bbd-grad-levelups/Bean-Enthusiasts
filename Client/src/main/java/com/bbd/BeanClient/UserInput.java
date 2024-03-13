@@ -123,8 +123,41 @@ public class UserInput {
     }
 
     private static void profile(List<String> commandElements){
+        String username = "";
+        String favBean = "";
+        String bio = "";
+
         //todo I am not gonna make this now LOL
         //the stuff to make a profile needs to be in the command or the user will be prompted to make one, still unsure
+        System.out.println("Please enter a username:");
+        username = scanner.nextLine();
+        //CHECK TO MAKE SURE USERNAME ISNT TAKEN
+        System.out.println("Please enter a short bio about yourself:");
+        bio = scanner.nextLine();
+        //TODO: show all of the beans here
+        System.out.println("Please enter your favorite bean from the available list: ");
+        System.out.println("**Showing all beans here!!**");
+        favBean = scanner.nextLine();
+        //CHECK TO MAKE SURE BEAN IS VALID!!
+        createUserProfile(2,username,bio);
+    }
+
+    /*
+     * Create User Profile
+     */
+    private static void createUserProfile(int favBean, String  username, String bio) {
+
+        String endpoint = "http://localhost:5000";
+        Users newUser = new Users(1,favBean,username,bio);
+        
+        String createUserUrl = endpoint + "/createUserProfile";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            System.out.println("User created successfully");
+        } else {
+            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
+        }
     }
 
     private static void comment(List<String> commandElements){

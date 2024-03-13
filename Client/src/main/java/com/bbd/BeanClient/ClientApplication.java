@@ -23,6 +23,7 @@ import java.util.Map;
 
 
 
+
 @SpringBootApplication
 public class ClientApplication {
 
@@ -84,7 +85,7 @@ public class ClientApplication {
      */
     private static void createPost() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Post newPost = new Post(1, 1, "My Post", "This is the content of my post", currentTime);
+        Post newPost = new Post(4, 1, "My Post", "This is the content of my post", currentTime);
 
         String createPostUrl = endpoint + "/createpost";
         RestTemplate restTemplate = new RestTemplate();
@@ -95,22 +96,6 @@ public class ClientApplication {
             System.out.println("Post created successfully: " + responseEntity.getStatusCode());
         } else {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
-        }
-    }
-
-    /*
-     * Create User Profile
-     */
-    private static void createUserProfile() {
-        Users newUser = new Users(1,10,"testingUser2","I like beans again");
-        
-        String createUserUrl = endpoint + "/createUserProfile";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("User created successfully");
-        } else {
-            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
 
@@ -178,11 +163,11 @@ public class ClientApplication {
 
         int userId = 0;
         int reactionTypeId = 2;
-        int commentId = 1;
+        int commentId = 5;
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(reactionTypeId, commentId);
+        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);
