@@ -57,7 +57,7 @@ public class ClientApplication {
                 
                 createPost();
                 commentReaction();
-                createComment();
+
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
@@ -86,7 +86,7 @@ public class ClientApplication {
      */
     private static void createPost() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Post newPost = new Post(1, 1, "My Post", "This is the content of my post", currentTime);
+        Post newPost = new Post(4, 1, "My Post", "This is the content of my post", currentTime);
 
         String createPostUrl = endpoint + "/createpost";
         RestTemplate restTemplate = new RestTemplate();
@@ -162,11 +162,11 @@ public class ClientApplication {
 
         int userId = 0;
         int reactionTypeId = 2;
-        int commentId = 1;
+        int commentId = 5;
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(reactionTypeId, commentId);
+        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);
