@@ -2,7 +2,7 @@ package com.bbd.BeanServer.controller;
 
 
 import com.bbd.BeanServer.service.CommentReactionService;
-// import com.bbd.BeanServer.service.CommentService;
+import com.bbd.BeanServer.service.CommentService;
 import com.bbd.BeanServer.service.ReactionService;
 import com.bbd.shared.models.Comment;
 import com.bbd.shared.models.Reaction;
@@ -25,8 +25,8 @@ public class CommentController {
     @Autowired
     private ReactionService reactionService;
 
-    // @Autowired
-    // private CommentService commentService;
+    @Autowired
+    private CommentService commentService;
 
     @PostMapping("/commentreaction")
     public ResponseEntity<Void> commentReaction(@RequestBody Map<String, Object> requestBody) throws ChangeSetPersister.NotFoundException {
@@ -44,17 +44,17 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    // @PostMapping("/createcomment")
-    // public ResponseEntity<Comment> createComment(@RequestBody Comment newComment) {
-    //     Comment createdComment = commentService.createCommentReaction(newComment);
-    //     // Return the response with the created comment and location header
-    //     URI location = ServletUriComponentsBuilder
-    //             .fromCurrentRequest()
-    //             .path("/{id}")
-    //             .buildAndExpand(createdComment.getComment_id())
-    //             .toUri();
+    @PostMapping("/createcomment")
+    public ResponseEntity<Comment> createComment(@RequestBody Comment newComment) {
+        Comment createdComment = commentService.createCommentReaction(newComment);
+        // Return the response with the created comment and location header
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(createdComment.getComment_id())
+                .toUri();
 
-    //     return ResponseEntity.created(location).body(createdComment);
-    // }
+        return ResponseEntity.created(location).body(createdComment);
+    }
 
 }
