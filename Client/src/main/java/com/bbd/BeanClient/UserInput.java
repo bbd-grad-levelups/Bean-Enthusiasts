@@ -403,6 +403,8 @@ public class UserInput {
             }
         } catch (HttpClientErrorException.BadRequest ex) {
             System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("Invalid request: bean doesn't exist");
         }
         
     }
