@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import com.bbd.shared.models.Users;
+import com.bbd.shared.models.*;
 
 
 public class UserInput {
@@ -81,8 +84,19 @@ public class UserInput {
         if(commandElements.size() >= 1){
             System.out.println("Note, the help command does not accept any other arguments");
         }
-        System.out.println("Help Screen");
-        //todo display the help screen
+        
+        System.out.println("Help Screen:");
+        System.out.println("bean help\t\t\t\tDisplay this help screen.");
+        System.out.println("bean prof\t\t\t\tCreate or view user profiles.");
+        System.out.println("bean post <PostTitle>\t\t\tCreate a new post with the specified title.");
+        System.out.println("bean com <PostID> <comment>\t\tAdd a comment to a post.");
+        System.out.println("bean set <FavouriteBean>\t\tSet your favorite bean.");
+        System.out.println("bean react <type=ID> <reaction>\tReact to a post or comment.");
+        System.out.println("bean view <option>\t\t\tView posts, profiles, or other data.");
+        System.out.println("bean add <option>\t\t\tAdd new beans or tags.");
+        System.out.println("bean rem <BeanName>\t\t\tRemove a bean.");
+        System.out.println("bean ban <BeanName> [true/false]\tBan or unban a bean.");
+
     }
 
     private static void post(List<String> commandElements){
@@ -253,7 +267,10 @@ public class UserInput {
                 //todo view your own profile
                 break;
             case "favbeans":
-                //todo view a list of all favourite bean (list shows the beans and if they are banned or not)
+                viewBeans();
+                break;
+            case "tags":
+                viewTags();
                 break;
         
             default:
@@ -262,32 +279,204 @@ public class UserInput {
         }
     }
 
-
-    private static void add(List<String> commandElements){
-        //todo check that the user is an admin
+    private static void add(List<String> commandElements) {
         commandElements.remove(0);
         if(commandElements.size() == 0){
-            System.out.println("The 'add' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
+            System.out.println("The 'add' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
 
-        String beanName = commandElements.get(0);
-        //todo run the add bean command
-        //todo check if the bean doesn't already exist
+        String command = commandElements.get(0);
+        switch (command) {
+            case "bean":
+                addBean(commandElements);
+                break;
+            case "tag":
+                addTag(commandElements);
+                break;
+            default:
+                System.out.println(command + " is not a valid option.\n\tRun 'bean help' for a list of options.");
+                return;
+        }
+    }
+
+    private static void rem(List<String> commandElements) {
+        commandElements.remove(0);
+        if(commandElements.size() == 0){
+            System.out.println("The 'remove' command is used incorrectly.\n\tPlease run 'bean help' for help.");
+            return;
+        }
+
+        String command = commandElements.get(0);
+        switch (command) {
+            case "bean":
+                removeBean(commandElements);
+                break;
+            case "tag":
+                removeTag(commandElements);
+                break;
+            default:
+                System.out.println(command + " is not a valid option.\n\tRun 'bean help' for a list of options.");
+                return;
+        }
+    }
+
+    @SuppressWarnings("null")
+    private static void viewBeans() {
+        String url = ClientApplication.endpoint + "/favoritebean";
+        RestTemplate restTemplate = new RestTemplate();
+        
+        ResponseEntity<List<FavoriteBean>> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<FavoriteBean>>() {});
+
+        String beanList = responseEntity.getBody().stream()
+        .map(x -> String.format("%-20s %-10s", x.getBeanName(), x.isBanned()))
+        .collect(Collectors.joining("\n"));
+
+        System.out.println("All Available beans: ");
+        System.out.println("Name                Banned");
+        System.out.println("-------------------- ----------");
+        System.out.println(beanList);
+        
+    }
+
+    @SuppressWarnings("null")
+    private static void viewTags() {
+        String url = ClientApplication.endpoint + "/tag";
+        RestTemplate restTemplate = new RestTemplate();
+        
+        ResponseEntity<List<Tag>> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<Tag>>() {});
+
+        String entityList = responseEntity.getBody().stream()
+        .map(x -> String.format("%-5s %-10s", x.getTag_id(), x.getTag_name()))
+        .collect(Collectors.joining("\n"));
+
+        System.out.println("All Available tags: ");
+        System.out.println("ID    Name");
+        System.out.println("----- ----------");
+        System.out.println(entityList);
+        
+    }
+
+    private static void addBean(List<String> commandElements) {
+        //todo check that the user is an admin
+        commandElements.remove(0);
+        if(commandElements.size() <= 1){
+            System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual bean name");
+            return;
+        } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
+            System.out.println("Invalid input argument for banned status");
+            return;
+        } else {
+
+            String url = ClientApplication.endpoint + "/favoritebean/add";
+            RestTemplate restTemplate = new RestTemplate();
+            FavoriteBean newBean = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
+
+            try {        
+                var response = restTemplate.postForEntity(url, newBean, Object.class);            
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Successfully added " + newBean.getBeanName() + " to the system!");
+                }
+            } catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+            }
+        }
+        
+    }
+
+    private static void addTag(List<String> commandElements) {
+        //todo check that the user is an admin
+        commandElements.remove(0);
+        if(commandElements.size() == 0){
+            System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual tag name");
+            return;
+        } else {
+
+            String url = ClientApplication.endpoint + "/tag/add";
+            RestTemplate restTemplate = new RestTemplate();
+            Tag newEntity = new Tag(commandElements.get(0));
+
+            try {        
+                var response = restTemplate.postForEntity(url, newEntity, Object.class);            
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
+                }
+            } catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+            }
+        }
+        
     }
 
 
-    private static void rem(List<String> commandElements){
+    private static void removeBean(List<String> commandElements){
         //todo check that the user is an admin
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
             return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual bean name");
+            return;
+        } else {
+            
+            String url = ClientApplication.endpoint + "/favoritebean/remove";
+            RestTemplate restTemplate = new RestTemplate();
+            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
+
+            try {        
+                var response = restTemplate.postForEntity(url, newEntity, Object.class);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
+                }
+            } catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+            } catch (HttpClientErrorException.NotFound ex) {
+                System.out.println("Invalid request: Bean does not exist");
+            }
         }
-        
-        String beanName = commandElements.get(0);
-        //todo run the remove bean command
-        //todo check if the bean does exist
+    }
+
+    private static void removeTag(List<String> commandElements){
+        //todo check that the user is an admin
+        commandElements.remove(0);
+        if(commandElements.size() == 0){
+            System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual tag name");
+            return;
+        } else {
+            
+            String url = ClientApplication.endpoint + "/tag/remove";
+            RestTemplate restTemplate = new RestTemplate();
+            Tag newEntity = new Tag(commandElements.get(0));
+
+            try {        
+                var response = restTemplate.postForEntity(url, newEntity, Object.class);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
+                }
+            } catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+            } catch (HttpClientErrorException.NotFound ex) {
+                System.out.println("Invalid request: Tag does not exist");
+            }
+        }
     }
 
 
@@ -297,11 +486,41 @@ public class UserInput {
         if(commandElements.size() == 0){
             System.out.println("The 'ban' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
             return;
+        } else if (commandElements.size() == 1) {
+            System.out.print("Bean's new ban status (true/false): ");
+            commandElements.add(scanner.nextLine());            
         }
 
         String beanName = commandElements.get(0);
-        //todo run the ban bean command
-        //todo check if the bean does exist
+        if (beanName.isEmpty()) {
+            System.out.println("Please enter an actual bean name");
+            return;
+        }
+
+        boolean is_banned;
+        if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
+            System.out.println("Invalid input argument for banned status");
+            return;
+        } else {
+            is_banned = Boolean.parseBoolean(commandElements.get(1));
+        }
+        String url = ClientApplication.endpoint + "/favoritebean/edit";
+        RestTemplate restTemplate = new RestTemplate();
+        
+        try {        
+            var response = restTemplate.postForEntity(url, new FavoriteBean(beanName, is_banned), Object.class);
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Successfully changed " + beanName + "'s banned status to " + is_banned);
+            } else if (response.getStatusCode().is4xxClientError()) {
+                System.out.println("Invalid request: " + response.getBody());
+            }
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("Invalid request: bean doesn't exist");
+        }
+        
     }
 
 }

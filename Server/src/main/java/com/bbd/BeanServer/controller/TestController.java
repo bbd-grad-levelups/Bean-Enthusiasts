@@ -71,18 +71,5 @@ class TestController {
     return CollectionModel.of(users);
   }
 
-  @PostMapping("/favoritebean/ban")
-  ResponseEntity<FavoriteBean> changeBeanBanStatus(@RequestBody BanBeanRequest request) {
-    
-    int beanID = request.getBean_id();
-    return beanRepository.findById((long) beanID)
-    .map(editedBean -> {
-      editedBean.setBanned(request.is_banned());
-      editedBean = beanRepository.save(editedBean);
-      return ResponseEntity.ok(editedBean);
-    })
-    .orElse(ResponseEntity.notFound().build());
-    
-  }
 
 }

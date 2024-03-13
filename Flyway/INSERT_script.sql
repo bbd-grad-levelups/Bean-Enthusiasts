@@ -114,9 +114,10 @@ VALUES
 -- Tag Table
 INSERT INTO tag (tag_name)
 VALUES
-('Tag1'),
-('Tag2'),
-('Tag3');
+('Cooking'),
+('Sport'),
+('DIY'),
+('Humor');
 
 -- ReactionType Table
 INSERT INTO reaction_type (reaction_name)

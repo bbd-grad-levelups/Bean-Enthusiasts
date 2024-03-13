@@ -2,6 +2,7 @@ package com.bbd.BeanServer.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.bbd.BeanServer.repository.FavoriteBeanRepository;
 import com.bbd.shared.models.FavoriteBean;
@@ -19,8 +20,16 @@ public class FavoriteBeanService {
     private FavoriteBeanRepository repository;
 
     public List<FavoriteBean> getAllFavoriteBean() {
-        List<FavoriteBean> FavoriteBean = repository.findAll();
-        return FavoriteBean.isEmpty() ? Collections.emptyList() : FavoriteBean;
+        List<FavoriteBean> beans = repository.findAll();
+        return (beans != null && beans.isEmpty()) ? Collections.emptyList() : beans;
     }
+
+    public Optional<FavoriteBean> getBeanByName(String name) {
+        return repository.findAll().stream()
+        .filter(x -> x.getBeanName().equalsIgnoreCase(name))
+        .findFirst();
+    }
+
+    
 
 }
