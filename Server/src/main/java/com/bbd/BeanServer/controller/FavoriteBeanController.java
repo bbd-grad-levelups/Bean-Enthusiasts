@@ -22,13 +22,13 @@ class FavoriteBeanController {
     @Autowired 
     FavoriteBeanService service;
 
-    @GetMapping("/favoritebeans")
+    @GetMapping("/favoritebean")
     ResponseEntity<?> returnAll() {
         List<FavoriteBean> beans = repository.findAll();
         return beans.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(beans);
     }
 
-    @GetMapping("/favoritebeans/find")
+    @GetMapping("/favoritebean/find")
     ResponseEntity<?> returnSpecific(@RequestBody FavoriteBean request) {
         if (request == null) {
             return ResponseEntity.badRequest().body("No value given");

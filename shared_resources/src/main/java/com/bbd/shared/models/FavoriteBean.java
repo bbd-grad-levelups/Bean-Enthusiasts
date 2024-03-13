@@ -32,4 +32,8 @@ public class FavoriteBean {
     public String toString() {
         return "(" + beanName + "," + banned +  ")";
     }
+
+    public FavoriteBean(String beanName2) {
+        this.beanName = beanName2;
+    }
 }

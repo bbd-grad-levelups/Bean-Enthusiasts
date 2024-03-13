@@ -2,7 +2,7 @@ package com.bbd.BeanClient;
 
 
 import com.bbd.shared.models.*;
-
+import com.bbd.shared.request_model.BanBeanRequest;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.bbd.BeanClient.model.FavoriteBean;
-import com.bbd.BeanClient.requestmodel.BanBeanRequest;
 
 
 
