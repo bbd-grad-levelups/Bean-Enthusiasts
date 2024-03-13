@@ -29,7 +29,7 @@ import com.bbd.BeanClient.requestmodel.BanBeanRequest;
 public class ClientApplication {
 
 
-    private final static String endpoint = "http://localhost:5000";
+    public final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
         SpringApplication.run(ClientApplication.class, args);
@@ -161,7 +161,9 @@ public class ClientApplication {
         BanBeanRequest request = new BanBeanRequest(bean_id, new_status);
 
         // Send POST request and get response
-        ResponseEntity<FavoriteBean> response = restTemplate.postForEntity(url, request, FavoriteBean.class);
+        ResponseEntity<?> response = restTemplate.postForEntity(url, request, Object.class);
+
+        response.getClass();
 
         // Print response
         System.out.println("Response status code: " + response.getStatusCode());

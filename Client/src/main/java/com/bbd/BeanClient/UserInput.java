@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import org.springframework.web.client.RestTemplate;
+
+import com.bbd.BeanClient.model.FavoriteBean;
+
 
 public class UserInput {
     public static Scanner scanner = new Scanner(System.in);
@@ -231,11 +235,36 @@ public class UserInput {
         if(commandElements.size() == 0){
             System.out.println("The 'add' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
             return;
+        } else if (commandElements.size() == 1) {
+            System.out.print("New bean's ban status (true/false): ");
+            commandElements.add(scanner.nextLine());            
         }
 
         String beanName = commandElements.get(0);
-        //todo run the add bean command
-        //todo check if the bean doesn't already exist
+        if (beanName.isEmpty()) {
+            System.out.println("Please enter an actual bean name");
+        }
+        boolean is_banned;
+        try {
+            is_banned = Boolean.parseBoolean(commandElements.get(1));
+        } catch (Exception e) {
+            System.out.println("Invalid input argument for banned status");
+            return;
+        }
+        System.out.println("is_banned: " + is_banned);
+        String url = ClientApplication.endpoint + "/favoritebean/add";
+        RestTemplate restTemplate = new RestTemplate();
+        FavoriteBean newBean = new FavoriteBean(beanName, is_banned);
+        System.out.println("What is this: " + newBean);
+        
+        var response = restTemplate.postForEntity(url, newBean, Object.class);
+
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            System.out.println("Successfully added " + response.getBody() + " to the system!");
+        } else if (response.getStatusCode().is4xxClientError()) {
+            System.out.println("Invalid request: " + response.getBody());
+        }
     }
 
 
