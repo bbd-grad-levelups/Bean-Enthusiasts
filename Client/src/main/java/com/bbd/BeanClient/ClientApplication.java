@@ -100,22 +100,6 @@ public class ClientApplication {
         }
     }
 
-    /*
-     * Create User Profile
-     */
-    private static void createUserProfile() {
-        Users newUser = new Users(1,10,"testingUser2","I like beans again");
-        
-        String createUserUrl = endpoint + "/createUserProfile";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("User created successfully");
-        } else {
-            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
-        }
-    }
-
 
     /*
      * Create Comment
