@@ -51,7 +51,7 @@ public class ClientApplication {
 
             // Running tests
             try {
-                boolean beanResult =banBean(1, true);
+                boolean beanResult = banBean(1, true);
 
                 System.out.println(String.format("bean result: %s", beanResult));
                 
@@ -72,9 +72,7 @@ public class ClientApplication {
                     System.out.println("It's bean a pleasure! Goodbye");
                     UserInput.scanner.close();
                     break;
-                }
-                else
-                {
+                } else {
                     UserInput.processCommand(userInput);
                 }
             }
@@ -99,22 +97,6 @@ public class ClientApplication {
             System.out.println("Post created successfully: " + responseEntity.getStatusCode());
         } else {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
-        }
-    }
-
-    /*
-     * Create User Profile
-     */
-    private static void createUserProfile() {
-        Users newUser = new Users(1,10,"testingUser2","I like beans again");
-
-        String createUserUrl = endpoint + "/createUserProfile";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("User created successfully");
-        } else {
-            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
         }
     }
 
