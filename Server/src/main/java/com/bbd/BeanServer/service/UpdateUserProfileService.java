@@ -13,9 +13,9 @@ import com.bbd.shared.models.Users;
 public class UpdateUserProfileService {
 
     @Autowired
-    private UserRepository userRepository;
+    private static UserRepository userRepository;
 
-    public Users updateUserProfile(Users updateUser) {
+    public static Users updateUserProfileBio(Users updateUser) {
         return userRepository.save(updateUser);
     }
 

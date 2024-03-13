@@ -1,6 +1,7 @@
 package com.bbd.BeanServer.controller;
 
 import com.bbd.BeanServer.service.CreateUserProfileService;
+import com.bbd.BeanServer.service.UpdateUserProfileService;
 import com.bbd.shared.assembler.ModelAssembler;
 import com.bbd.shared.models.Post;
 import com.bbd.shared.models.Users;
@@ -34,7 +35,6 @@ public class UserProfileController {
     @PostMapping("/createUserProfile")
     public ResponseEntity<Users> createUserProfile(@RequestBody Users newUser) {
         Users createdUser = CreateUserProfileService.createUserProfile(newUser);
-        // Return the response with the created post and location header
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -42,6 +42,18 @@ public class UserProfileController {
                 .toUri();
 
         return ResponseEntity.created(location).body(createdUser);
+    }
+
+    @PostMapping("/updateUserProfile/Bio")
+    public ResponseEntity<Users> updateUserProfileBio(@RequestBody Users updateUser) {
+        // Return the response with the created post and location header
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(updateUser.getUser_id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(updateUser);
     }
     
 }
