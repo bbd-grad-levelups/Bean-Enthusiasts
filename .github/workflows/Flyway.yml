@@ -2,7 +2,7 @@ name: 'Database CI/CD'
  
 on:
   push:
-    branches: [ feature/favorite_bean ]
+    branches: [ main ]
       
 env:
     DOCKER_IMAGE: redgate/flyway
