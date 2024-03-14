@@ -163,7 +163,7 @@ public class ClientApplication {
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId);
+        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId, new Timestamp(commentId));
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);

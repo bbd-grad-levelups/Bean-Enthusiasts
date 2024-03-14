@@ -93,17 +93,34 @@ public class UserInput {
             System.out.println("Note, the help command does not accept any other arguments");
         }
         
-        System.out.println("Help Screen:");
-        System.out.println("bean help\t\t\t\tDisplay this help screen.");
-        System.out.println("bean prof\t\t\t\tCreate or view user profiles.");
-        System.out.println("bean post <PostTitle>\t\t\tCreate a new post with the specified title.");
-        System.out.println("bean com <PostID> <comment>\t\tAdd a comment to a post.");
-        System.out.println("bean set <FavouriteBean>\t\tSet your favorite bean.");
-        System.out.println("bean react <type=ID> <reaction>\tReact to a post or comment.");
-        System.out.println("bean view <option>\t\t\tView posts, profiles, or other data.");
-        System.out.println("bean add <option>\t\t\tAdd new beans or tags.");
-        System.out.println("bean rem <BeanName>\t\t\tRemove a bean.");
-        System.out.println("bean ban <BeanName> [true/false]\tBan or unban a bean.");
+        System.out.println("Help Screen:########################################################################");
+        System.out.println("bean help                          Display this help screen.\n");
+        System.out.println("bean post <PostTitle>              Create a new post with the specified title.\n");
+        System.out.println("bean prof                          Create user profile.\n");
+        System.out.println("bean com <PostID> <comment>        Add a comment to a post.\n");
+        System.out.println("bean set <FavouriteBean>           Set your favorite bean.\n");
+        System.out.println("bean react <type> <ID> <reaction>    React to a post or comment.");
+        System.out.println("           type is either [post/comment]");
+        System.out.println("           ID needs to match a postID or a commentID depending on the type");
+        System.out.println("           reaction is either [1/0]   1=like   and   0=dislike\n");
+        System.out.println("bean view <option>                 View posts, profiles, or other data.");
+        System.out.println("           Options include:");
+        System.out.println("           'post <postID>'      View a specific post");
+        System.out.println("           'post-all'      View all posts");
+        System.out.println("           'post-recent'      View most recent post");
+        System.out.println("           'post-me <?UserName?>'      View your own posts or supply the username of another user");
+        System.out.println("           'prof <?UserName?>'      View your own profile or supply the username of another user");
+        System.out.println("           'favbeans'      View a list of all the favourite beans");
+        System.out.println("           'tags'      View a list of all the available beans\n");
+        System.out.println("bean add <option>                  Add new beans or tags.\n");
+        System.out.println("           option is either [bean/tag]");
+        System.out.println("           bean add bean <name> <true/false>");
+        System.out.println("           bean add bean <name>\n");
+        System.out.println("bean rem <option>                  Remove a bean or tag.");
+        System.out.println("           option is either [bean/tag]");
+        System.out.println("           bean add bean <name>");
+        System.out.println("           bean add bean <name>\n");
+        System.out.println("bean ban <BeanName> [true/false]   Ban or unban a bean.\n");
 
     }
 
@@ -281,7 +298,20 @@ public class UserInput {
             return;
         }
         String favBean = commandElements.get(0);
-        //todo check that the inputted bean is valid
+        String url = ClientApplication.endpoint + "/favoritebean";
+        
+        ResponseEntity<List<FavoriteBean>> responseEntity = executeViewRequest(url, null, 
+        HttpMethod.GET, new ParameterizedTypeReference<List<FavoriteBean>>() {});
+
+        String beanList = responseEntity.getBody().stream()
+        .map(x -> String.format("%-20s %-10s", x.getBeanName(), x.isBanned()))
+        .collect(Collectors.joining("\n"));
+
+        if(beanList.contains(favBean)){
+            //todo-JOHAN set the favourite bean of this user with the favBean
+        } else {
+            System.out.println("Please choose a bean from the list of beans - view the list with 'bean view favbeans'");
+        }
     }
 
     private static void react(List<String> commandElements){
@@ -479,7 +509,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -545,7 +575,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -670,7 +700,10 @@ public class UserInput {
     }
 
     private static void addBean(List<String> commandElements) {
-        //todo check that the user is an admin
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() <= 1){
             System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
@@ -697,7 +730,10 @@ public class UserInput {
     }
 
     private static void addTag(List<String> commandElements) {
-        //todo check that the user is an admin
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
@@ -720,7 +756,10 @@ public class UserInput {
     }
 
     private static void removeBean(List<String> commandElements){
-        //todo check that the user is an admin
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
@@ -741,7 +780,10 @@ public class UserInput {
     }
 
     private static void removeTag(List<String> commandElements){
-        //todo check that the user is an admin
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
