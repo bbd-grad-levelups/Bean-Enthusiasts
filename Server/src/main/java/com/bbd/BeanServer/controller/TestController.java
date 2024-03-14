@@ -14,8 +14,6 @@ import com.bbd.shared.models.*;
 import com.bbd.BeanServer.repository.FavoriteBeanRepository;
 import com.bbd.BeanServer.repository.UserRepository;
 import com.bbd.BeanServer.service.GreetingService;
-import com.bbd.shared.models.FavoriteBean;
-import com.bbd.shared.models.Greeting;
 import com.bbd.shared.request_model.BanBeanRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;

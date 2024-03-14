@@ -1,19 +1,23 @@
 package com.bbd.BeanClient;
 
+import com.bbd.BeanClient.util.AuthenticationProcess;
 
 import com.bbd.shared.models.*;
-import com.bbd.shared.request_model.BanBeanRequest;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+
 import org.springframework.context.annotation.Bean;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -27,10 +31,13 @@ import java.util.Map;
 @SpringBootApplication
 public class ClientApplication {
 
+    static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
+
 
     public final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
+        a.loginFlow();
         SpringApplication.run(ClientApplication.class, args);
     }
 
@@ -50,13 +57,12 @@ public class ClientApplication {
 
             // Running tests
             try {
-                boolean beanResult = banBean(1, true);
+                String url = endpoint + "/";
+  
+                ResponseEntity<String> val = UserInput.executeClassRequest(url, "Sending", HttpMethod.GET, String.class);
 
-                System.out.println(String.format("bean result: %s", beanResult));
-                
-                createPost();
-                commentReaction();
-                createComment();
+                System.out.println("Response:" + val.getBody());
+
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
@@ -134,26 +140,6 @@ public class ClientApplication {
         return favBeans;
     }
 
-    private boolean banBean(int bean_id, boolean new_status) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Define request URL
-        String url = endpoint + "/favoritebean/ban";
-
-        // Define request body
-        BanBeanRequest request = new BanBeanRequest(bean_id, new_status);
-
-        // Send POST request and get response
-        ResponseEntity<?> response = restTemplate.postForEntity(url, request, Object.class);
-
-        response.getClass();
-
-        // Print response
-        System.out.println("Response status code: " + response.getStatusCode());
-        System.out.println("Response body: " + response.getBody());
-        return response.getStatusCode().is2xxSuccessful();
-    }
-
     /*
         Can you use this to like /dislike comment
     */
@@ -181,6 +167,26 @@ public class ClientApplication {
         } else {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
+    }
+
+
+
+    public ResponseEntity<String> yourMethod(String accessToken) {
+        // Your logic to generate response
+        String responseBody = "Your response body here";
+
+        // Creating HttpHeaders object to add headers
+        HttpHeaders headers = new HttpHeaders();
+
+        // Adding headers to HttpHeaders object
+        headers.add("Custom-Header", "Custom-Value");
+        headers.add("Another-Header", "Another-Value");
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        // Creating ResponseEntity with headers and status
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
+
+        return responseEntity;
     }
 
     /*
