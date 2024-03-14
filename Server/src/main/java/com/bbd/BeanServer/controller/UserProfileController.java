@@ -1,8 +1,6 @@
 package com.bbd.BeanServer.controller;
 
 import com.bbd.BeanServer.service.CreateUserProfileService;
-import com.bbd.shared.assembler.ModelAssembler;
-import com.bbd.shared.models.Post;
 import com.bbd.shared.models.Users;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +30,20 @@ public class UserProfileController {
                 .toUri();
 
         return ResponseEntity.created(location).body(createdUser);
+    }
+
+    @PostMapping("/user/find")
+    ResponseEntity<?> returnSpecific(@RequestBody Users request) {
+        if (request == null) {
+        return ResponseEntity.badRequest().body("No value given");
+        } else {
+            System.out.println("Username received: " + request.getUsername());
+        return CreateUserProfileService.getUserByName(request.getUsername())
+            .map(x -> {
+                return ResponseEntity.ok(x);
+            })
+            .orElse(ResponseEntity.notFound().build());
+        }
     }
 
 }

@@ -12,4 +12,5 @@ public interface PostReactionRepository extends JpaRepository<PostReaction, Long
             "JOIN Reaction r ON pr.reaction_id = r.reaction_id " +
             "WHERE pr.post_id = :post_id")
     int getReactionCountForPost(@Param("post_id") Long post_id);
+
 }

@@ -31,8 +31,9 @@ import java.util.Map;
 @SpringBootApplication
 public class ClientApplication {
 
-    static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
-
+    public static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
+    
+    public static boolean isAdmin = true;
 
     public final static String endpoint = "http://localhost:5000";
 
@@ -50,23 +51,7 @@ public class ClientApplication {
     @ConditionalOnProperty(name = "app.run", havingValue = "true", matchIfMissing = true)
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
-            System.out.println("Welcome... to BEANS");
-
-            
-
-
-            // Running tests
-            try {
-                String url = endpoint + "/";
-  
-                ResponseEntity<String> val = UserInput.executeClassRequest(url, "Sending", HttpMethod.GET, String.class);
-
-                System.out.println("Response:" + val.getBody());
-
-            } catch (Exception e) {
-                System.out.println("Nope, sorry. Error: " + e.toString());
-            }
-            
+            System.out.println("Welcome... to BEANS");    
             
             System.out.println("Tests completed, starting client");
 

@@ -28,7 +28,7 @@ class TagController {
     return tags.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tags);
   }
 
-  @GetMapping("/tag/find")
+  @PostMapping("/tag/find")
   ResponseEntity<?> returnSpecific(@RequestBody Tag request) {
     if (request == null) {
       return ResponseEntity.badRequest().body("No value given");
