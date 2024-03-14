@@ -16,7 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
@@ -27,14 +27,13 @@ import java.util.Map;
 
 
 
-
 @SpringBootApplication
 public class ClientApplication {
 
+    public static boolean isAdmin = false;
+
     public static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
     
-    public static boolean isAdmin = true;
-
     public final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
@@ -71,6 +70,31 @@ public class ClientApplication {
 
     }
 
+    private static void profileGet(){
+        String username = AuthenticationProcess.getUsername();
+        String url = ClientApplication.endpoint + "/user/find";
+        //check if in database
+         try {        
+                var response = UserInput.executeClassRequest(url,new Users(username),HttpMethod.POST,Users.class);            
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("User found.");
+                    if(response.getBody().getUser_role_id()==2){
+                        isAdmin = true;
+                        System.out.println("Admin user detected!");
+                    }else{
+                        isAdmin = false;
+                        System.out.println("Regular user detected!");
+                    }
+                }
+            } catch (HttpClientErrorException.BadRequest ex) {
+                System.err.println("Bad Request!!!");
+            }
+            catch(HttpClientErrorException.NotFound x){
+                System.out.println("You must bean new here! Please enter some information about yourself:");
+                UserInput.makeProfile(username);
+            }
+    }
+
     /*
      * Create Post
      */
@@ -96,7 +120,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(1, 2, "This is my comment!", currentTime);
+        Comment newComment = new Comment(1, 2, "Hey ya!", currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 
@@ -177,6 +201,7 @@ public class ClientApplication {
     /*
      * Can use this to like /dislike post
      */
+    @SuppressWarnings("deprecation")
     private static void postReaction() {
         RestTemplate restTemplate = new RestTemplate();
         String url = endpoint + "/postreaction";

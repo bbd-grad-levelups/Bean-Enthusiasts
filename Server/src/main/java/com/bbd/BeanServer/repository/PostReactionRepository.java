@@ -5,6 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.bbd.shared.models.PostReaction;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+@Repository
 
 public interface PostReactionRepository extends JpaRepository<PostReaction, Long> {
     @Query("SELECT COALESCE(SUM(CASE WHEN r.reaction_type_id = 1 THEN 1 ELSE -1 END), 0) " +

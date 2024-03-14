@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,9 +51,6 @@ public class UserInput {
         switch (second) {
             case "help":
                 help(commandElements);
-                break;
-            case "prof":
-                profile(commandElements);
                 break;
             case "post":
                 post(commandElements);
@@ -138,42 +136,46 @@ public class UserInput {
         System.out.println(postTag.toUpperCase());
     }
 
-    private static void profile(List<String> commandElements){
-        String username = "";
+    public static void makeProfile(String username){
         String favBean = "";
         String bio = "";
 
-        //todo I am not gonna make this now LOL
-        //the stuff to make a profile needs to be in the command or the user will be prompted to make one, still unsure
-        System.out.println("Please enter a username:");
-        username = scanner.nextLine();
         //CHECK TO MAKE SURE USERNAME ISNT TAKEN
         System.out.println("Please enter a short bio about yourself:");
         bio = scanner.nextLine();
-        //TODO: show all of the beans here
+        viewBeans();
         System.out.println("Please enter your favorite bean from the available list: ");
-        System.out.println("**Showing all beans here!!**");
         favBean = scanner.nextLine();
-        //CHECK TO MAKE SURE BEAN IS VALID!!
-        createUserProfile(2,username,bio);
+        createUserProfile(getBeanID(favBean),username,bio);
     }
 
     /*
      * Create User Profile
      */
     private static void createUserProfile(int favBean, String  username, String bio) {
-
         String endpoint = "http://localhost:5000";
         Users newUser = new Users(1,favBean,username,bio);
         
         String createUserUrl = endpoint + "/createUserProfile";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Void> responseEntity = restTemplate.postForEntity(createUserUrl, newUser, Void.class);
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("User created successfully");
-        } else {
-            System.out.println("Failed to create user. Status code: " + responseEntity.getStatusCodeValue());
+        boolean execution_success = handleRequest(createUserUrl, newUser, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully added user");
         }
+    }
+
+    public static int getBeanID(String name)
+    {
+        int beanId = 10;
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/favoritebean/find";
+        FavoriteBean requestBean = new FavoriteBean(name);
+        ResponseEntity<FavoriteBean> response = executeClassRequest(url,requestBean,HttpMethod.POST,FavoriteBean.class);
+        if(response.getBody()!=null){
+            beanId = response.getBody().getFavoriteBeanId(); 
+        }else{
+            System.out.println("Please select an actual bean :'(");
+        }
+        return beanId;
     }
 
     private static void comment(List<String> commandElements){
@@ -716,10 +718,8 @@ public class UserInput {
 
     @SuppressWarnings("null")
     public static <T, M> ResponseEntity<M> executeClassRequest(String url, T requestBody, HttpMethod requestType, Class<M> responseType) {
-
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(AuthenticationProcess.getAccessToken());
-
         HttpEntity<T> requestEntity = new HttpEntity<>(requestBody, headers);
         RestTemplate restTemplate = new RestTemplate();
         // Sending the request and getting the response

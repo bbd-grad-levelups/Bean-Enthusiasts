@@ -3,8 +3,11 @@ package com.bbd.BeanServer.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.bbd.shared.models.FavoriteBean;
+import org.springframework.stereotype.Repository;
 
-public interface FavoriteBeanRepository extends JpaRepository<FavoriteBean, Long>{
+@Repository
+
+public interface FavoriteBeanRepository extends JpaRepository<FavoriteBean, Long> {
 
 }
 
