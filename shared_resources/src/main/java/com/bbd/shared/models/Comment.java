@@ -23,12 +23,12 @@ public class Comment {
     int post_id;
     int user_id;
     String comment_info;
-    Timestamp datePosted;
+    Timestamp date_posted;
 
-    public Comment(int post_id, int user_id, String comment_info, Timestamp datePosted) {
+    public Comment(int post_id, int user_id, String comment_info,Timestamp date_posted) {
         this.post_id = post_id;
         this.user_id = user_id;
         this.comment_info = comment_info;
-        this.datePosted = datePosted;
+        this.date_posted = date_posted;
     }
 }

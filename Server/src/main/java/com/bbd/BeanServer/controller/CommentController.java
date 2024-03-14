@@ -46,7 +46,8 @@ public class CommentController {
 
     @PostMapping("/createcomment")
     public ResponseEntity<Comment> createComment(@RequestBody Comment newComment) {
-        Comment createdComment = commentService.createCommentReaction(newComment);
+        
+        Comment createdComment = commentService.createComment(newComment);
         // Return the response with the created comment and location header
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

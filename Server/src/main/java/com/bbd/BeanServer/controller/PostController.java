@@ -10,6 +10,7 @@ import com.bbd.shared.models.PostReaction;
 import com.bbd.shared.models.Post;
 
 import com.bbd.shared.models.Reaction;
+import com.bbd.shared.models.Tag;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -69,6 +70,21 @@ class PostController {
         postReactionService.createPostReaction(newpostReaction);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/findpost")
+    ResponseEntity<?> returnSpecific(@RequestBody Post request) {
+    if (request == null) {
+      return ResponseEntity.badRequest().body("No value given");
+    } else {
+      return postService.getPostById(request.getPostId())
+          .map(x -> {
+            return ResponseEntity.ok(x);
+          })
+          .orElse(ResponseEntity.notFound().build());
+    }
+  }
+
+
 
 
 }

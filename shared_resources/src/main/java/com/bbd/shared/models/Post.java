@@ -43,4 +43,8 @@ public class Post {
         this.postContent = postContent;
         this.datePosted = datePosted;
     }
+
+    public Post(int postId){
+        this.postId = postId;
+    }
 }
