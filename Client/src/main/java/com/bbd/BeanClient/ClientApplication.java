@@ -1,5 +1,7 @@
 package com.bbd.BeanClient;
 
+import com.bbd.BeanClient.util.AuthenticationProcess;
+
 
 import com.bbd.shared.models.*;
 import com.bbd.shared.request_model.BanBeanRequest;
@@ -10,7 +12,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,10 +30,13 @@ import java.util.Map;
 @SpringBootApplication
 public class ClientApplication {
 
+    static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
+
 
     public final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
+        a.loginFlow();
         SpringApplication.run(ClientApplication.class, args);
     }
 
@@ -181,6 +187,25 @@ public class ClientApplication {
         } else {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
+    }
+
+
+    public ResponseEntity<String> yourMethod(String accessToken) {
+        // Your logic to generate response
+        String responseBody = "Your response body here";
+
+        // Creating HttpHeaders object to add headers
+        HttpHeaders headers = new HttpHeaders();
+
+        // Adding headers to HttpHeaders object
+        headers.add("Custom-Header", "Custom-Value");
+        headers.add("Another-Header", "Another-Value");
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        // Creating ResponseEntity with headers and status
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
+
+        return responseEntity;
     }
 
     /*
