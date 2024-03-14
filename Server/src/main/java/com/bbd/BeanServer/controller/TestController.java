@@ -26,63 +26,59 @@ import org.springframework.http.ResponseEntity;
 @RestController
 class TestController {
 
-  @Autowired
-  private UserRepository userRepository;
-  
-  @Autowired 
-  FavoriteBeanRepository beanRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-  @Autowired
-  private ModelAssembler<Greeting> greetingAssembler;
-  @Autowired
-  private ModelAssembler<Users> userAssembler;
+    @Autowired
+    FavoriteBeanRepository beanRepository;
 
-  @Autowired
-  private GreetingService greetingService;
+    @Autowired
+    private ModelAssembler<Greeting> greetingAssembler;
+    @Autowired
+    private ModelAssembler<Users> userAssembler;
+
+    @Autowired
+    private GreetingService greetingService;
 
 
-  TestController() {
+    TestController() {
 
-  }
-  
-  @SuppressWarnings("null")
-  @GetMapping("/test")
-  CollectionModel<EntityModel<Greeting>> all() {
+    }
 
-    List<EntityModel<Greeting>> greetings = greetingService.getAllGreetings().stream()
-      .map(greetingAssembler::toModel).collect(Collectors.toList());
+    @SuppressWarnings("null")
+    @GetMapping("/test")
+    public String testEndpoint() {
+        return "Hello, World";
+    }
 
-    return CollectionModel.of(greetings);
-  }
+    @GetMapping("test/{id}")
+    EntityModel<Greeting> getGreeting(@PathVariable int id) {
+        Greeting greetingData = greetingService.getGreetingById(id);
 
-  @GetMapping("test/{id}")
-  EntityModel<Greeting> getGreeting(@PathVariable int id) {
-    Greeting greetingData = greetingService.getGreetingById(id);
+        return greetingAssembler.toModel(greetingData);
+    }
 
-    return greetingAssembler.toModel(greetingData);
-  }
-  
-  @SuppressWarnings("null")
-  @GetMapping("/test/user")
-  CollectionModel<EntityModel<Users>> allUsers() {
-    List <EntityModel<Users>> users = userRepository.findAll().stream()
-    .map(userAssembler::toModel).collect(Collectors.toList());
-    
-    return CollectionModel.of(users);
-  }
+    @SuppressWarnings("null")
+    @GetMapping("/test/user")
+    CollectionModel<EntityModel<Users>> allUsers() {
+        List<EntityModel<Users>> users = userRepository.findAll().stream()
+                .map(userAssembler::toModel).collect(Collectors.toList());
 
-  @PostMapping("/favoritebean/ban")
-  ResponseEntity<FavoriteBean> changeBeanBanStatus(@RequestBody BanBeanRequest request) {
-    
-    int beanID = request.getBean_id();
-    return beanRepository.findById((long) beanID)
-    .map(editedBean -> {
-      editedBean.setBanned(request.is_banned());
-      editedBean = beanRepository.save(editedBean);
-      return ResponseEntity.ok(editedBean);
-    })
-    .orElse(ResponseEntity.notFound().build());
-    
-  }
+        return CollectionModel.of(users);
+    }
+
+    @PostMapping("/favoritebean/ban")
+    ResponseEntity<FavoriteBean> changeBeanBanStatus(@RequestBody BanBeanRequest request) {
+
+        int beanID = request.getBean_id();
+        return beanRepository.findById((long) beanID)
+                .map(editedBean -> {
+                    editedBean.setBanned(request.is_banned());
+                    editedBean = beanRepository.save(editedBean);
+                    return ResponseEntity.ok(editedBean);
+                })
+                .orElse(ResponseEntity.notFound().build());
+
+    }
 
 }

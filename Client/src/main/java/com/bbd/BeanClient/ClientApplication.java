@@ -24,7 +24,6 @@ import com.bbd.BeanClient.model.FavoriteBean;
 import com.bbd.BeanClient.requestmodel.BanBeanRequest;
 
 
-
 @SpringBootApplication
 public class ClientApplication {
 
@@ -46,23 +45,23 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            
-
 
             // Running tests
             try {
-                boolean beanResult = banBean(1, true);
+//                boolean beanResult = banBean(1, true);
 
-                System.out.println(String.format("bean result: %s", beanResult));
-                
+//                System.out.println(String.format("bean result: %s", beanResult));
+
                 createPost();
                 commentReaction();
+                createComment();
+                System.out.println("comment success");
 
             } catch (Exception e) {
                 System.out.println("Nope, sorry. Error: " + e.toString());
             }
-            
-            
+
+
             System.out.println("Tests completed, starting client");
 
             while (true) {
@@ -106,7 +105,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(1, 2, "This is my comment!", currentTime);
+        Comment newComment = new Comment(1, 2, "Hey ya!", currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 

@@ -2,25 +2,18 @@ package com.bbd.BeanServer.controller;
 
 import com.bbd.BeanServer.repository.*;
 import com.bbd.shared.models.Comment;
-import com.bbd.shared.models.Greeting;
 import com.bbd.shared.models.Post;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.bbd.BeanServer.repository.PostRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class BeanKarmaController {
 
-
-    @Autowired
-    private UserRepository userRepository; // Assuming you have a UserRepository to interact with the database
 
     @Autowired
     private PostRepository postRepository;
@@ -49,7 +42,7 @@ public class BeanKarmaController {
             beanKarma += commentReactionRepository.getReactionCountForComment((long) comment.getComment_id());
         }
 
-        return beanKarma;
+        return 0;
     }
 
     @GetMapping("/calculatebeankarmaforpost/{post_id}")
