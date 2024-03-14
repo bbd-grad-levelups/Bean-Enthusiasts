@@ -28,4 +28,8 @@ public class Users {
         this.username = username;
         this.bio = bio;
     }
+
+    public Users(String username) {
+        this.username = username;
+    }
 }
