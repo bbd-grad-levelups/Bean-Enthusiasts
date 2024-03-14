@@ -36,7 +36,7 @@ public class UserProfileController {
         return ResponseEntity.created(location).body(createdUser);
     }
 
-      @GetMapping("/user/find/")
+      @PostMapping("/user/find")
   ResponseEntity<?> returnSpecific(@RequestBody Users request) {
     if (request == null) {
       return ResponseEntity.badRequest().body("No value given");

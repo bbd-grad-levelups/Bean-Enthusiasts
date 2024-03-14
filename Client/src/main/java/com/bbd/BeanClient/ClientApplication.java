@@ -31,6 +31,8 @@ import java.util.Map;
 @SpringBootApplication
 public class ClientApplication {
 
+    public static boolean isAdmin = false;
+
     static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
 
 
@@ -51,10 +53,6 @@ public class ClientApplication {
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
             System.out.println("Welcome... to BEANS");
-
-            //MAKE PROFILE IF NOT EXIST HERE!!!
-
-            //check to see if username in database
             profileGet();
 
             //check if has fav bean and bio
@@ -97,23 +95,29 @@ public class ClientApplication {
 
     }
 
-    private static String profileGet(){
+    private static void profileGet(){
         String username = AuthenticationProcess.getUsername();
-        String url = ClientApplication.endpoint + "/user/find/";
+        String url = ClientApplication.endpoint + "/user/find";
         //check if in database
          try {        
-                var response = UserInput.executeClassRequest(url,username,HttpMethod.GET,String.class);            
+                var response = UserInput.executeClassRequest(url,new Users(username),HttpMethod.POST,Users.class);            
                 if (response.getStatusCode().is2xxSuccessful()) {
-                    System.out.println("The user is in the database!");
-                }else{
-                    System.out.println("The user is NOT in the database! Add the user to the database!");
+                    System.out.println("User found.");
+                    if(response.getBody().getUser_role_id()==2){
+                        isAdmin = true;
+                        System.out.println("Admin user detected!");
+                    }else{
+                        isAdmin = false;
+                        System.out.println("Regular user detected!");
+                    }
                 }
             } catch (HttpClientErrorException.BadRequest ex) {
-                System.out.println("The user is NOT in the database! Add the user to the database!");
+                System.err.println("Bad Request!!!");
             }
-        return "Yo ho ho";
-
-
+            catch(HttpClientErrorException.NotFound x){
+                System.out.println("You must bean new here! Please enter some information about yourself:");
+                UserInput.makeProfile(username);
+            }
     }
 
     /*
