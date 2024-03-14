@@ -83,6 +83,21 @@ class PostController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/findpost")
+    ResponseEntity<?> returnSpecific(@RequestBody Post request) {
+    if (request == null) {
+      return ResponseEntity.badRequest().body("No value given");
+    } else {
+      return postService.getPostById(request.getPostId())
+          .map(x -> {
+            return ResponseEntity.ok(x);
+          })
+          .orElse(ResponseEntity.notFound().build());
+    }
+  }
+
+
+
     @PostMapping("/posts")
     ResponseEntity<?> returnAllPosts(@RequestBody String request) {
         return ResponseEntity.ok(postRepository.findAll());

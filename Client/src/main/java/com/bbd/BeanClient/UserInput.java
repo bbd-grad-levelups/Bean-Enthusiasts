@@ -1,5 +1,6 @@
 package com.bbd.BeanClient;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -19,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import com.bbd.BeanClient.util.AuthenticationProcess;
 import com.bbd.shared.models.*;
 
+import ch.qos.logback.core.pattern.PostCompileProcessor;
+
 
 public class UserInput {
     public static Scanner scanner = new Scanner(System.in);
@@ -30,6 +33,8 @@ public class UserInput {
             processCommand(userInput);
         }
     }
+
+    public static int userId;
 
 
     public static void processCommand(String str){
@@ -117,7 +122,7 @@ public class UserInput {
             postContent = scanner.nextLine();
         }
         String postTag = "";
-        //todo all possible tags
+        //TODO: implement tag functionality
         List<String> allTags = List.of("LIMA", "KIDNEY", "BLOOD");
         while(postTag.equals("")){
             System.out.println("All Possible Tags Are:");
@@ -127,13 +132,38 @@ public class UserInput {
             if(!allTags.contains(postTag.toUpperCase())){
                 postTag = "";
                 System.out.println("Please supply a valid tag from the supplied list");
+                return;
             }
         }
-        //todo run the make post function passing in
-        // postTitle, postContent, postTag
-        System.out.println(postTitle);
-        System.out.println(postContent);
-        System.out.println(postTag.toUpperCase());
+        makePost(postTitle, postContent, postTag);
+    }
+
+    public static void makePost(String postTitle, String postContent, String postTag){
+
+        String endpoint = "http://localhost:5000";
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Post newPost = new Post(userId,1,postTitle,postContent,currentTime);
+        
+        String createPostUrl = endpoint + "/createpost";
+        boolean execution_success = handleRequest(createPostUrl, newPost, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully created Post");
+        }
+
+    }
+
+    public static void makeComment(int postId, String commentContent){
+
+        String endpoint = "http://localhost:5000";
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Comment newComment = new Comment(postId,userId,commentContent,currentTime);
+        
+        String createCommentUrl = endpoint + "/createcomment";
+        boolean execution_success = handleRequest(createCommentUrl, newComment, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully created comment on post.");
+        }
+
     }
 
     public static void makeProfile(String username){
@@ -147,6 +177,7 @@ public class UserInput {
         System.out.println("Please enter your favorite bean from the available list: ");
         favBean = scanner.nextLine();
         createUserProfile(getBeanID(favBean),username,bio);
+        ClientApplication.profileGet();
     }
 
     /*
@@ -160,6 +191,7 @@ public class UserInput {
         boolean execution_success = handleRequest(createUserUrl, newUser, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully added user");
+            
         }
     }
 
@@ -176,6 +208,49 @@ public class UserInput {
             System.out.println("Please select an actual bean :'(");
         }
         return beanId;
+    }
+
+    public static int getTagID(String name)
+    {
+        int tagId = 1;
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/tag/find";
+        Tag requestTag = new Tag(name);
+        ResponseEntity<Tag> response = executeClassRequest(url,requestTag,HttpMethod.POST,Tag.class);
+        if(response.getBody()!=null){
+            tagId = response.getBody().getTag_id(); 
+        }else{
+            System.out.println("NO TAG PROVIDED!!!!!Defaulting :'(");
+        }
+        return tagId;
+    }
+
+    public static boolean checkPostByID(int postID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findpost";
+        Post requestPost = new Post(postID);
+        ResponseEntity<Post> response = executeClassRequest(url,requestPost,HttpMethod.POST,Post.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected post does not exist");
+            return false;
+        }
+    }
+
+    public static boolean checkReactionByID(int reactionID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findreaction";
+        PostReaction requestReaction = new PostReaction(reactionID);
+        ResponseEntity<Post> response = executeClassRequest(url,requestReaction,HttpMethod.POST,Post.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected reaction does not exist");
+            return false;
+        }
     }
 
     private static void comment(List<String> commandElements){
@@ -196,6 +271,7 @@ public class UserInput {
 
         //todo insert function that makes a comment
         //using postID, comment
+        makeComment( Integer.parseInt(postID),comment);
     }
 
     private static void set(List<String> commandElements){
@@ -239,16 +315,34 @@ public class UserInput {
             return;
         }
         String body = String.join(" ", commandElements);
-
+        
         if(isPost){
             //todo make sure that ID contains a valid postID
             //todo the react command was used to react to a POST
+            if(checkPostByID(Integer.parseInt("1")) && checkReactionByID(Integer.parseInt("1"))){
+                System.out.println("Please enter the ID of a post that exists");
+                return;
+            }else{
+
+            }
             //todo make sure the reaction is a valid reaction
+
         } else {
             //todo make sure that ID contains a valid commentID
             //todo the react command was used to react to a COMMENT
             //todo make sure the reaction is a valid reaction
         } 
+    }
+
+    public static void makeReaction(int postID, int reactID){
+        String endpoint = "http://localhost:5000";
+        PostReaction newReaction = new PostReaction(postID, reactID);
+        
+        String createReactUrl = endpoint + "/postreaction";
+        boolean execution_success = handleRequest(createReactUrl, newReaction, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully added reaction!");
+        }
     }
 
 

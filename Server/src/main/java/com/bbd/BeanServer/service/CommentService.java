@@ -10,7 +10,8 @@ public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
-    public Comment createCommentReaction(Comment newComment) {
+    @SuppressWarnings("null")
+    public Comment createComment(Comment newComment) {
         return commentRepository.save(newComment);
     }
 }

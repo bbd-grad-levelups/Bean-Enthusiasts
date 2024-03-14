@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +23,7 @@ public class CommentReaction {
     int comment_id;
     int reaction_id;
 
-    public CommentReaction(int comment_id, int reaction_id) {
+    public CommentReaction(int comment_id, int reaction_id, Timestamp datePosted) {
         this.comment_id = comment_id;
         this.reaction_id = reaction_id;
     }

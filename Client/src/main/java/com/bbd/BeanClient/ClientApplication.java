@@ -70,7 +70,7 @@ public class ClientApplication {
 
     }
 
-    private static void profileGet(){
+    public static void profileGet(){
         String username = AuthenticationProcess.getUsername();
         String url = ClientApplication.endpoint + "/user/find";
         //check if in database
@@ -78,6 +78,7 @@ public class ClientApplication {
                 var response = UserInput.executeClassRequest(url,new Users(username),HttpMethod.POST,Users.class);            
                 if (response.getStatusCode().is2xxSuccessful()) {
                     System.out.println("User found.");
+                    UserInput.userId = response.getBody().getUser_id();
                     if(response.getBody().getUser_role_id()==2){
                         isAdmin = true;
                         System.out.println("Admin user detected!");
@@ -120,7 +121,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(1, 2, "Hey ya!", currentTime);
+        Comment newComment = new Comment(1, 2, "This is my comment!",currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 
