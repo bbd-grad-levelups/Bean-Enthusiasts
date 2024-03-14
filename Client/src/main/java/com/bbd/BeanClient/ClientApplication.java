@@ -54,16 +54,6 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
             profileGet();
-
-            //check if has fav bean and bio
-            //if not have above, add fav bean and bio
-
-            //if not in database - add and prompt to make fav bean and bio
-
-            //save is admin or not
-
-
-
             // Running tests
             try {
                 String url = endpoint + "/";
@@ -226,6 +216,7 @@ public class ClientApplication {
     /*
      * Can use this to like /dislike post
      */
+    @SuppressWarnings("deprecation")
     private static void postReaction() {
         RestTemplate restTemplate = new RestTemplate();
         String url = endpoint + "/postreaction";
