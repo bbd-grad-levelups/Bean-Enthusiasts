@@ -400,7 +400,7 @@ public class UserInput {
         String url = ClientApplication.endpoint + "/posts";
 
         try {
-            ResponseEntity<List<Post>> responseEntity = executeViewRequest(url, null, HttpMethod.POST, 
+            ResponseEntity<List<Post>> responseEntity = executeViewRequest(url, "string", HttpMethod.POST, 
             new ParameterizedTypeReference<List<Post>>() {});
 
             String postList = responseEntity.getBody().stream()
