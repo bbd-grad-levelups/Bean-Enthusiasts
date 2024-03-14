@@ -14,7 +14,7 @@ public class AuthenticationProcess {
     private String ClientId;
 
 
-    private String username;
+    private static String username;
     private static String accessToken;
 
     public AuthenticationProcess(String ClientId) {
@@ -117,7 +117,7 @@ public class AuthenticationProcess {
         return jsonObject.get("login").getAsString();       
     }
 
-    public String getUsername() {
+    public static String getUsername() {
         return username;
     }
 

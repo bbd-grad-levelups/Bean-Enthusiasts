@@ -16,7 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
@@ -52,7 +52,18 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");
 
-            
+            //MAKE PROFILE IF NOT EXIST HERE!!!
+
+            //check to see if username in database
+            profileGet();
+
+            //check if has fav bean and bio
+            //if not have above, add fav bean and bio
+
+            //if not in database - add and prompt to make fav bean and bio
+
+            //save is admin or not
+
 
 
             // Running tests
@@ -83,6 +94,25 @@ public class ClientApplication {
             }
             System.exit(0);
         };
+
+    }
+
+    private static String profileGet(){
+        String username = AuthenticationProcess.getUsername();
+        String url = ClientApplication.endpoint + "/user/find/";
+        //check if in database
+         try {        
+                var response = UserInput.executeClassRequest(url,username,HttpMethod.GET,String.class);            
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("The user is in the database!");
+                }else{
+                    System.out.println("The user is NOT in the database! Add the user to the database!");
+                }
+            } catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("The user is NOT in the database! Add the user to the database!");
+            }
+        return "Yo ho ho";
+
 
     }
 
