@@ -23,9 +23,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('server/pom.xml') }} # Change the path to server/pom.xml
           restore-keys: |
             ${{ runner.os }}-maven-
 
       - name: Run Maven test
+        working-directory: ./server # Change the working directory to server
         run: mvn test
