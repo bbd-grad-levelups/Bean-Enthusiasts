@@ -6,11 +6,14 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.bbd.BeanClient.util.AuthenticationProcess;
 import com.bbd.shared.models.*;
 
 
@@ -324,13 +327,9 @@ public class UserInput {
     @SuppressWarnings("null")
     private static void viewBeans() {
         String url = ClientApplication.endpoint + "/favoritebean";
-        RestTemplate restTemplate = new RestTemplate();
         
-        ResponseEntity<List<FavoriteBean>> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<FavoriteBean>>() {});
+        ResponseEntity<List<FavoriteBean>> responseEntity = executeViewRequest(url, null, 
+        HttpMethod.GET, new ParameterizedTypeReference<List<FavoriteBean>>() {});
 
         String beanList = responseEntity.getBody().stream()
         .map(x -> String.format("%-20s %-10s", x.getBeanName(), x.isBanned()))
@@ -422,7 +421,6 @@ public class UserInput {
         
     }
 
-
     private static void removeBean(List<String> commandElements){
         //todo check that the user is an admin
         commandElements.remove(0);
@@ -484,7 +482,7 @@ public class UserInput {
         //todo check that the user is an admin
         commandElements.remove(0);
         if(commandElements.size() == 0){
-            System.out.println("The 'ban' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
+            System.out.println("The 'ban' command is used incorrectly: BeanName provided.\n\tPlease run 'bean help' for help.");
             return;
         } else if (commandElements.size() == 1) {
             System.out.print("Bean's new ban status (true/false): ");
@@ -492,35 +490,74 @@ public class UserInput {
         }
 
         String beanName = commandElements.get(0);
+        boolean is_banned;
         if (beanName.isEmpty()) {
             System.out.println("Please enter an actual bean name");
             return;
-        }
-
-        boolean is_banned;
-        if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
+        } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
             System.out.println("Invalid input argument for banned status");
             return;
         } else {
             is_banned = Boolean.parseBoolean(commandElements.get(1));
         }
+
         String url = ClientApplication.endpoint + "/favoritebean/edit";
-        RestTemplate restTemplate = new RestTemplate();
-        
+        FavoriteBean requestBean = new FavoriteBean(beanName, is_banned);
+        boolean execution_success = handleRequest(url, requestBean, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully changed " + beanName + "'s status.");
+        }
+
+    }
+
+    private static <T> boolean handleRequest(String url, T requestBody, HttpMethod requestType) {
         try {        
-            var response = restTemplate.postForEntity(url, new FavoriteBean(beanName, is_banned), Object.class);
-            
+            var response = executeClassRequest(url, requestBody, requestType, Object.class);
             if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("Successfully changed " + beanName + "'s banned status to " + is_banned);
-            } else if (response.getStatusCode().is4xxClientError()) {
-                System.out.println("Invalid request: " + response.getBody());
+                return true;
             }
         } catch (HttpClientErrorException.BadRequest ex) {
             System.out.println("Invalid request: " + ex.getResponseBodyAsString());
         } catch (HttpClientErrorException.NotFound ex) {
-            System.out.println("Invalid request: bean doesn't exist");
+            System.out.println("Invalid request: Requested item not found");
         }
-        
+        return false;
+    }
+
+    @SuppressWarnings("null")
+    public static <T> ResponseEntity<T> executeClassRequest(String url, T requestBody, HttpMethod requestType, Class<T> responseType) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(AuthenticationProcess.getAccessToken());
+
+        HttpEntity<T> requestEntity = new HttpEntity<>(requestBody, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        // Sending the request and getting the response
+        ResponseEntity<T> responseEntity = restTemplate.exchange(
+                url,
+                requestType,
+                requestEntity,
+                responseType);
+
+        return responseEntity;
+    }
+
+    @SuppressWarnings("null")
+    public static <T> ResponseEntity<T> executeViewRequest(String url, T requestBody, HttpMethod requestType, ParameterizedTypeReference<T> responseType) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(AuthenticationProcess.getAccessToken());
+
+        HttpEntity<T> requestEntity = new HttpEntity<>(requestBody, headers);
+        RestTemplate restTemplate = new RestTemplate();
+        // Sending the request and getting the response
+        ResponseEntity<T> responseEntity = restTemplate.exchange(
+                url,
+                requestType,
+                requestEntity,
+                responseType);
+
+        return responseEntity;
     }
 
 }
