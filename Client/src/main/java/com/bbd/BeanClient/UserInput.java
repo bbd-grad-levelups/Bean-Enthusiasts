@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import org.apache.catalina.connector.ClientAbortException;
+import org.springframework.boot.autoconfigure.integration.IntegrationProperties.RSocket.Client;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -259,17 +261,20 @@ public class UserInput {
 
         String third = commandElements.get(0);
         switch (third) {
+            case "post":
+                viewSpecificPost(commandElements);
+                break;
             case "post-all":
-                //todo view all posts
+                viewAllPosts();
                 break;
             case "post-recent":
-                //todo view most recent post
+                viewRecentPost();
                 break;
             case "post-me":
-                //todo view users own posts
+                viewMyPosts(commandElements);
                 break;
             case "prof":
-                //todo view your own profile
+                viewProfile(commandElements);
                 break;
             case "favbeans":
                 viewBeans();
@@ -285,6 +290,10 @@ public class UserInput {
     }
 
     private static void add(List<String> commandElements) {
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'add' command is used incorrectly.\n\tPlease run 'bean help' for help.");
@@ -306,6 +315,10 @@ public class UserInput {
     }
 
     private static void rem(List<String> commandElements) {
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'remove' command is used incorrectly.\n\tPlease run 'bean help' for help.");
@@ -324,6 +337,203 @@ public class UserInput {
                 System.out.println(command + " is not a valid option.\n\tRun 'bean help' for a list of options.");
                 return;
         }
+    }
+
+    private static List<Comment> getPostComments(int postID) {
+        String url = ClientApplication.endpoint + "/post/comment";
+
+        ResponseEntity<List<Comment>> responseEntity = executeViewRequest(url, postID, HttpMethod.POST, 
+        new ParameterizedTypeReference<List<Comment>>() {});
+        return responseEntity.getBody();
+
+    }
+
+
+    private static void viewSpecificPost(List<String> commandElements) {
+        commandElements.remove(0);
+        int postID;
+        if (commandElements.isEmpty()) {
+            System.out.println("Post not given");
+            return;
+        } else {
+            postID = Integer.parseInt(commandElements.get(0));
+        }
+
+
+
+        String url = ClientApplication.endpoint + "/posts/find";
+
+        try {
+
+            ResponseEntity<Post> responseEntity = executeClassRequest(url, postID, HttpMethod.POST, Post.class);
+            Post post = responseEntity.getBody();
+            List<Comment> comments = getPostComments(post.getPostId());
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Post Information:\n");
+            sb.append("-----------------\n");
+            sb.append("Post ID: ").append(post.getPostId()).append("\n");
+            sb.append("Username: ").append(post.getUserId()).append("\n");
+            sb.append("Tag name: ").append(post.getTagId()).append("\n");
+            sb.append("Post Title: ").append(post.getPostTitle()).append("\n");
+            sb.append("Post Content: ").append(post.getPostContent()).append("\n");
+            sb.append("Date Posted: ").append(post.getDatePosted()).append("\n");
+            sb.append("-----------------\n");
+            System.out.println(sb.toString());
+
+            System.out.println("\nComments:");
+            System.out.println("--------------------\n");
+            System.out.println(comments.stream()
+            .map(comment -> 
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            .collect(Collectors.joining("\n")));
+
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("Invalid request: User not found");
+        }
+    }
+
+    
+    private static void viewAllPosts() {
+        String url = ClientApplication.endpoint + "/posts";
+
+        try {
+            ResponseEntity<List<Post>> responseEntity = executeViewRequest(url, null, HttpMethod.POST, 
+            new ParameterizedTypeReference<List<Post>>() {});
+
+            String postList = responseEntity.getBody().stream()
+            .map(post -> { 
+                StringBuilder sb = new StringBuilder();
+                sb.append("Post Information:\n");
+                sb.append("-----------------\n");
+                sb.append("Post ID: ").append(post.getPostId()).append("\n");
+                sb.append("User ID: ").append(post.getUserId()).append("\n");
+                sb.append("Tag ID: ").append(post.getTagId()).append("\n");
+                sb.append("Post Title: ").append(post.getPostTitle()).append("\n");
+                sb.append("Post Content: ").append(post.getPostContent()).append("\n");
+                sb.append("Date Posted: ").append(post.getDatePosted()).append("\n");
+                sb.append("-----------------\n");
+                return sb.toString();
+
+            }).collect(Collectors.joining("\n"));
+
+            System.out.println("All posts");
+            System.out.println(postList);
+        } catch (Exception e) {
+            System.out.println("An error occurred while loading posts");
+        }
+    }
+
+    private static void viewRecentPost() {
+        String url = ClientApplication.endpoint + "/posts/new";
+        
+        try {
+
+            ResponseEntity<Post> responseEntity = executeClassRequest(url, "string", HttpMethod.POST, Post.class);
+            Post post = responseEntity.getBody();
+            List<Comment> comments = getPostComments(post.getPostId());
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Post Information:\n");
+            sb.append("-----------------\n");
+            sb.append("Post ID: ").append(post.getPostId()).append("\n");
+            sb.append("Username: ").append(post.getUserId()).append("\n");
+            sb.append("Tag name: ").append(post.getTagId()).append("\n");
+            sb.append("Post Title: ").append(post.getPostTitle()).append("\n");
+            sb.append("Post Content: ").append(post.getPostContent()).append("\n");
+            sb.append("Date Posted: ").append(post.getDatePosted()).append("\n");
+            sb.append("-----------------\n");
+            System.out.println(sb.toString());
+
+            System.out.println("\nComments:");
+            System.out.println("--------------------\n");
+            System.out.println(comments.stream()
+            .map(comment -> 
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            .collect(Collectors.joining("\n")));
+
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("Invalid request: User not found");
+        }
+    }
+
+
+    private static void viewMyPosts(List<String> commandElements) {
+        commandElements.remove(0);
+        String username;
+        if (commandElements.isEmpty()) {
+            username = ClientApplication.a.getUsername();
+        } else {
+            username = commandElements.get(0);
+        }
+
+        String url = ClientApplication.endpoint + "/posts/user";
+
+        try {
+            Users newUser = new Users(username);
+
+            ResponseEntity<List<Post>> responseEntity = executeViewRequest(url, newUser,
+            HttpMethod.POST, new ParameterizedTypeReference<List<Post>>() {});
+
+            String postList = responseEntity.getBody().stream()
+            .map(post -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Post Information:\n");
+                sb.append("-----------------\n");
+                sb.append("Post ID: ").append(post.getPostId()).append("\n");
+                sb.append("User ID: ").append(post.getUserId()).append("\n");
+                sb.append("Tag ID: ").append(post.getTagId()).append("\n");
+                sb.append("Post Title: ").append(post.getPostTitle()).append("\n");
+                sb.append("Post Content: ").append(post.getPostContent()).append("\n");
+                sb.append("Date Posted: ").append(post.getDatePosted()).append("\n");
+                sb.append("-----------------\n");
+                return sb.toString();
+            })
+            .collect(Collectors.joining("\n\n"));
+
+            System.out.println(postList);
+        } catch (Exception e) {
+            System.out.println("Something went wrong");
+        }
+    }
+
+    private static void viewProfile(List<String> commandElements) {
+        commandElements.remove(0);
+        String username;
+        if (commandElements.isEmpty()) {
+            username = ClientApplication.a.getUsername();
+        } else {
+            username = commandElements.get(0);
+        }
+
+        String url = ClientApplication.endpoint + "/user/find";
+        
+        try {
+            Users newUser = new Users(username);
+
+            ResponseEntity<Users> responseEntity = executeClassRequest(url, newUser, HttpMethod.POST, Users.class);
+            Users user = responseEntity.getBody();
+            
+            System.out.println("User Profile:");
+            System.out.println("-------------");
+            System.out.println("User ID: " + user.getUser_id());
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("Bio: " + user.getBio());
+            System.out.println("User Role ID: " + user.getUser_role_id());
+            System.out.println("Favorite Bean ID: " + user.getFavorite_bean_id());
+            System.out.println("-------------");
+
+
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("Invalid request: User not found");
+        }
+
     }
 
     @SuppressWarnings("null")
@@ -347,12 +557,11 @@ public class UserInput {
     @SuppressWarnings("null")
     private static void viewTags() {
         String url = ClientApplication.endpoint + "/tag";
-        RestTemplate restTemplate = new RestTemplate();
         
-        ResponseEntity<List<Tag>> responseEntity = restTemplate.exchange(
+        ResponseEntity<List<Tag>> responseEntity = executeViewRequest(
                 url,
-                HttpMethod.GET,
                 null,
+                HttpMethod.GET,
                 new ParameterizedTypeReference<List<Tag>>() {});
 
         String entityList = responseEntity.getBody().stream()
@@ -381,18 +590,15 @@ public class UserInput {
         } else {
 
             String url = ClientApplication.endpoint + "/favoritebean/add";
-            RestTemplate restTemplate = new RestTemplate();
-            FavoriteBean newBean = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
+            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
 
-            try {        
-                var response = restTemplate.postForEntity(url, newBean, Object.class);            
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    System.out.println("Successfully added " + newBean.getBeanName() + " to the system!");
-                }
-            } catch (HttpClientErrorException.BadRequest ex) {
-                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
             }
         }
+
+        
         
     }
 
@@ -411,13 +617,9 @@ public class UserInput {
             RestTemplate restTemplate = new RestTemplate();
             Tag newEntity = new Tag(commandElements.get(0));
 
-            try {        
-                var response = restTemplate.postForEntity(url, newEntity, Object.class);            
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
-                }
-            } catch (HttpClientErrorException.BadRequest ex) {
-                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
             }
         }
         
@@ -435,18 +637,11 @@ public class UserInput {
         } else {
             
             String url = ClientApplication.endpoint + "/favoritebean/remove";
-            RestTemplate restTemplate = new RestTemplate();
             FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
 
-            try {        
-                var response = restTemplate.postForEntity(url, newEntity, Object.class);
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
-                }
-            } catch (HttpClientErrorException.BadRequest ex) {
-                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
-            } catch (HttpClientErrorException.NotFound ex) {
-                System.out.println("Invalid request: Bean does not exist");
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
             }
         }
     }
@@ -463,25 +658,20 @@ public class UserInput {
         } else {
             
             String url = ClientApplication.endpoint + "/tag/remove";
-            RestTemplate restTemplate = new RestTemplate();
             Tag newEntity = new Tag(commandElements.get(0));
 
-            try {        
-                var response = restTemplate.postForEntity(url, newEntity, Object.class);
-                if (response.getStatusCode().is2xxSuccessful()) {
-                    System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
-                }
-            } catch (HttpClientErrorException.BadRequest ex) {
-                System.out.println("Invalid request: " + ex.getResponseBodyAsString());
-            } catch (HttpClientErrorException.NotFound ex) {
-                System.out.println("Invalid request: Tag does not exist");
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
             }
         }
     }
 
-
     private static void ban(List<String> commandElements){
-        //todo check that the user is an admin
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
         commandElements.remove(0);
         if(commandElements.size() == 0){
             System.out.println("The 'ban' command is used incorrectly: BeanName provided.\n\tPlease run 'bean help' for help.");
@@ -543,7 +733,7 @@ public class UserInput {
     }
 
     @SuppressWarnings("null")
-    public static <T> ResponseEntity<T> executeViewRequest(String url, T requestBody, HttpMethod requestType, ParameterizedTypeReference<T> responseType) {
+    public static <T, M> ResponseEntity<M> executeViewRequest(String url, T requestBody, HttpMethod requestType, ParameterizedTypeReference<M> responseType) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(AuthenticationProcess.getAccessToken());
@@ -551,7 +741,7 @@ public class UserInput {
         HttpEntity<T> requestEntity = new HttpEntity<>(requestBody, headers);
         RestTemplate restTemplate = new RestTemplate();
         // Sending the request and getting the response
-        ResponseEntity<T> responseEntity = restTemplate.exchange(
+        ResponseEntity<M> responseEntity = restTemplate.exchange(
                 url,
                 requestType,
                 requestEntity,

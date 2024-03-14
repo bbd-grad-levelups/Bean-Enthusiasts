@@ -32,9 +32,8 @@ public class ClientApplication {
 
     public static boolean isAdmin = false;
 
-    static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
-
-
+    public static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
+    
     public final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
@@ -51,8 +50,10 @@ public class ClientApplication {
     @ConditionalOnProperty(name = "app.run", havingValue = "true", matchIfMissing = true)
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
-            System.out.println("Welcome... to BEANS");
-          
+            System.out.println("Welcome... to BEANS");    
+            
+            System.out.println("Tests completed, starting client");
+
             while (true) {
                 System.out.print("\n\n>");
                 String userInput = UserInput.scanner.nextLine();

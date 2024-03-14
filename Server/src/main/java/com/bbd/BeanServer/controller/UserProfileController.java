@@ -36,8 +36,8 @@ public class UserProfileController {
         return ResponseEntity.created(location).body(createdUser);
     }
 
-      @PostMapping("/user/find")
-  ResponseEntity<?> returnSpecific(@RequestBody Users request) {
+    @PostMapping("/user/find")
+    ResponseEntity<?> returnSpecific(@RequestBody Users request) {
     if (request == null) {
       return ResponseEntity.badRequest().body("No value given");
     } else {
@@ -48,5 +48,6 @@ public class UserProfileController {
           .orElse(ResponseEntity.notFound().build());
     }
   }
+
 
 }

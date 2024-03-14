@@ -20,10 +20,10 @@ public class CreateUserProfileService {
         return userRepository.save(newUser);
     }
 
-     public Optional<Users> getUserByName(String username) {
-      return userRepository.findAll().stream()
-      .filter(x -> x.getUsername().equals(username))
-      .findFirst();
-  }
+    public Optional<Users> getUserByName(String name) {
+        return userRepository.findAll().stream()
+        .filter(x -> x.getUsername().equalsIgnoreCase(name))
+        .findFirst();
+    }
 
 }
