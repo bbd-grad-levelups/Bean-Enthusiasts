@@ -19,11 +19,14 @@ jobs:
           java-version: '21'
           distribution: 'oracle'
 
+      - name: Change directory
+        run: cd Bean-Enthusiasts/Client
+
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('Bean-Enthusiasts/Server/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
