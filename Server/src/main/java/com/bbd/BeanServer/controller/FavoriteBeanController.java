@@ -30,14 +30,10 @@ class FavoriteBeanController {
 
     @PostMapping("/favoritebean/find")
     ResponseEntity<?> returnSpecific(@RequestBody FavoriteBean request) {
-        System.out.println("BOINK BOINK BOINKBOINKBOINK 9999");
-
         System.out.println(request);
         if (request == null) {
-            System.out.println("BOINK BOINK BOINKBOINKBOINK");
             return ResponseEntity.badRequest().body("No value given");
         } else {
-            System.out.println("BOINK");
             return service.getBeanByName(request.getBeanName())
             .map(matchedBean -> {
                 return ResponseEntity.ok(matchedBean);
