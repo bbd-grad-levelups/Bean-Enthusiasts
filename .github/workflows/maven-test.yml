@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '21'
-          distributions: 'oracle'
+          distribution: 'oracle'
 
       - name: Cache Maven packages
         uses: actions/cache@v2
