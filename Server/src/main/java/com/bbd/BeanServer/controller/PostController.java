@@ -56,18 +56,14 @@ class PostController {
     }
 
     @PostMapping("/postreaction")
-    public ResponseEntity<Void> postReaction(@RequestBody Map<String, Object> requestBody) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<Void> postReaction(@RequestBody PostReaction newPostReaction) {
         ObjectMapper mapper = new ObjectMapper();
 
-        // Deserialize Reaction object
-        Reaction newReaction = mapper.convertValue(requestBody.get("reaction"), Reaction.class);
-        reactionService.createReaction(newReaction);
 
         // only if reaction is successfully created then this entity should be created with FK of reactionid
         //TODO validation
-        PostReaction newpostReaction = mapper.convertValue(requestBody.get("postReaction"), PostReaction.class);
-        newpostReaction.setReaction_id(newReaction.getReaction_id());
-        postReactionService.createPostReaction(newpostReaction);
+        PostReaction createdPostReaction = postReactionService.createPostReaction(newPostReaction);
+        createdPostReaction.setReaction_id(newPostReaction.getReaction_id());
         return ResponseEntity.ok().build();
     }
 
@@ -84,9 +80,8 @@ class PostController {
     }
   }
 
-
-
-
 }
+
+
 
 

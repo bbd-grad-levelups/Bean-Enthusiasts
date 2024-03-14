@@ -25,9 +25,5 @@ public class PostReaction {
         this.post_id = post_id;
         this.reaction_id = reaction_id;
     }
-
-    public PostReaction(int reaction_id){
-        this.reaction_id = reaction_id;
-    }
     
 }

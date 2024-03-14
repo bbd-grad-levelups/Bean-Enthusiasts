@@ -241,12 +241,12 @@ public class UserInput {
     {
         String endpoint = "http://localhost:5000";
         String url = endpoint + "/findreaction";
-        PostReaction requestReaction = new PostReaction(reactionID);
-        ResponseEntity<Post> response = executeClassRequest(url,requestReaction,HttpMethod.POST,Post.class);
+        ReactionType requestReaction = new ReactionType(reactionID);
+        ResponseEntity<ReactionType> response = executeClassRequest(url,requestReaction,HttpMethod.POST,ReactionType.class);
         if(response.getBody()!=null){
             return true;
         }else{
-            System.out.println("Selected reaction does not exist");
+            System.out.println("Selected reaction type does not exist");
             return false;
         }
     }
@@ -284,19 +284,17 @@ public class UserInput {
 
     private static void react(List<String> commandElements){
         commandElements.remove(0);
+        System.out.println(commandElements);
         if(commandElements.size() == 0){
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
-        if(!commandElements.get(0).contains("=")){
-            System.out.println("Incorrect usage of the 'react' command.\n\tCheck the 'bean help' command for usage.");
-            return;
-        }
-        List<String> third = Arrays.stream(commandElements.get(0).split("=", -2))
-            .collect(Collectors.toList());
         boolean isPost;
-        String ID = third.get(1);
-        switch (third.get(0)) {
+        String postID = commandElements.get(1);
+        System.out.println("Post ID: " +  postID);
+        String reactID = commandElements.get(2);
+        System.out.println("React ID: " +  reactID);
+        switch (commandElements.get(0)) {
             case "post":
                 isPost = true;
                 break;
@@ -304,7 +302,7 @@ public class UserInput {
                 isPost = false;
                 break;
             default:
-                System.out.println(third.get(0) + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
+                System.out.println(commandElements.get(0) + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
                 return;
         }
         commandElements.remove(0);
@@ -312,18 +310,14 @@ public class UserInput {
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
-        String body = String.join(" ", commandElements);
-        
         if(isPost){
-            //todo make sure that ID contains a valid postID
-            //todo the react command was used to react to a POST
-            if(checkPostByID(Integer.parseInt("1")) && checkReactionByID(Integer.parseInt("1"))){
-                System.out.println("Please enter the ID of a post that exists");
+            if(checkPostByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
+                makePostReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
                 return;
             }else{
-
+                System.out.println("Either the post ID or reaction ID is not correct. Please try again.");
+                
             }
-            //todo make sure the reaction is a valid reaction
 
         } else {
             //todo make sure that ID contains a valid commentID
@@ -332,7 +326,7 @@ public class UserInput {
         } 
     }
 
-    public static void makeReaction(int postID, int reactID){
+    public static void makePostReaction(int postID, int reactID){
         String endpoint = "http://localhost:5000";
         PostReaction newReaction = new PostReaction(postID, reactID);
         
