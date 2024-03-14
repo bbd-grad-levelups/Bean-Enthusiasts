@@ -28,4 +28,5 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run Maven test
+        cd: Server\pom.xml
         run: mvn test
