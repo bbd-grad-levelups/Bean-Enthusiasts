@@ -27,7 +27,6 @@ import java.util.Map;
 
 
 
-
 @SpringBootApplication
 public class ClientApplication {
 
@@ -53,22 +52,7 @@ public class ClientApplication {
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
             System.out.println("Welcome... to BEANS");
-            profileGet();
-            // Running tests
-            try {
-                String url = endpoint + "/";
-  
-                ResponseEntity<String> val = UserInput.executeClassRequest(url, "Sending", HttpMethod.GET, String.class);
-
-                System.out.println("Response:" + val.getBody());
-
-            } catch (Exception e) {
-                System.out.println("Nope, sorry. Error: " + e.toString());
-            }
-            
-            
-            System.out.println("Tests completed, starting client");
-
+          
             while (true) {
                 System.out.print("\n\n>");
                 String userInput = UserInput.scanner.nextLine();
@@ -135,7 +119,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(1, 2, "This is my comment!", currentTime);
+        Comment newComment = new Comment(1, 2, "Hey ya!", currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 
