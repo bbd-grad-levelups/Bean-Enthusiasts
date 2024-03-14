@@ -28,7 +28,7 @@ class FavoriteBeanController {
         return beans.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(beans);
     }
 
-    @GetMapping("/favoritebean/find")
+    @PostMapping("/favoritebean/find")
     ResponseEntity<?> returnSpecific(@RequestBody FavoriteBean request) {
         if (request == null) {
             return ResponseEntity.badRequest().body("No value given");
