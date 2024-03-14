@@ -3,7 +3,7 @@ name: Maven Test
 on:
   push:
     branches:
-      - derryk/feature/unittests
+      - main
 
 jobs:
   build:
