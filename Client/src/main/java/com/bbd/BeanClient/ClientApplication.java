@@ -38,6 +38,7 @@ public class ClientApplication {
 
     public static void main(String[] args) {
         a.loginFlow();
+        profileGet();
         SpringApplication.run(ClientApplication.class, args);
     }
 

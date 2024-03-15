@@ -6,8 +6,6 @@ import com.bbd.shared.models.*;
 import com.bbd.shared.models.Reaction;
 import org.springframework.stereotype.Repository;
 
-@Repository
-
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
 
 }
