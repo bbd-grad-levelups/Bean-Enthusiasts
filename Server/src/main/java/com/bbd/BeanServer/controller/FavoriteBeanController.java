@@ -30,7 +30,6 @@ class FavoriteBeanController {
 
     @PostMapping("/favoritebean/find")
     ResponseEntity<?> returnSpecific(@RequestBody FavoriteBean request) {
-        System.out.println(request);
         if (request == null) {
             return ResponseEntity.badRequest().body("No value given");
         } else {

@@ -2,6 +2,7 @@ package com.bbd.BeanServer.controller;
 
 
 import com.bbd.BeanServer.repository.CommentReactionRepository;
+import com.bbd.BeanServer.repository.CommentRepository;
 import com.bbd.BeanServer.service.CommentReactionService;
 import com.bbd.BeanServer.service.CommentService;
 import com.bbd.BeanServer.service.ReactionService;
@@ -19,12 +20,17 @@ import com.bbd.shared.models.PostReaction;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 public class CommentController {
     @Autowired
     private CommentReactionService commentReactionService;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private ReactionService reactionService;
@@ -69,5 +75,12 @@ public class CommentController {
           .orElse(ResponseEntity.notFound().build());
     }
   }
+
+    @PostMapping("/post/comment")
+    public ResponseEntity<?> getPostComments(@RequestBody int postID) {
+        List<Comment> postComments = commentRepository.findAll().stream()
+        .filter(x -> (x.getPost_id() == postID)).collect(Collectors.toList());
+        return ResponseEntity.ok(postComments);
+    }
 
 }

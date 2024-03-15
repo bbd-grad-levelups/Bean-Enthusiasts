@@ -27,15 +27,13 @@ import java.util.Map;
 
 
 
-
 @SpringBootApplication
 public class ClientApplication {
 
     public static boolean isAdmin = false;
 
-    static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
-
-
+    public static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
+    
     public final static String endpoint = "http://localhost:5000";
 
     public static void main(String[] args) {
@@ -52,20 +50,7 @@ public class ClientApplication {
     @ConditionalOnProperty(name = "app.run", havingValue = "true", matchIfMissing = true)
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
         return args -> {
-            System.out.println("Welcome... to BEANS");
-            profileGet();
-            // Running tests
-            try {
-                String url = endpoint + "/";
-  
-                ResponseEntity<String> val = UserInput.executeClassRequest(url, "Sending", HttpMethod.GET, String.class);
-
-                System.out.println("Response:" + val.getBody());
-
-            } catch (Exception e) {
-                System.out.println("Nope, sorry. Error: " + e.toString());
-            }
-            
+            System.out.println("Welcome... to BEANS");    
             
             System.out.println("Tests completed, starting client");
 
@@ -136,7 +121,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(1, 2, "This is my comment!",currentTime);
+        Comment newComment = new Comment(1, 2, "Hey ya!", currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 
