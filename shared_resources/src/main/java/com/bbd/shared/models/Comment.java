@@ -31,4 +31,8 @@ public class Comment {
         this.comment_info = comment_info;
         this.date_posted = date_posted;
     }
+
+    public Comment(int comment_id){
+        this.comment_id = comment_id;
+    }
 }

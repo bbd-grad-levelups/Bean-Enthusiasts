@@ -237,6 +237,20 @@ public class UserInput {
         }
     }
 
+    public static boolean checkCommentByID(int commentID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findcomment";
+        Comment requestComment = new Comment(commentID);
+        ResponseEntity<Comment> response = executeClassRequest(url,requestComment,HttpMethod.POST,Comment.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected comment does not exist");
+            return false;
+        }
+    }
+
     public static boolean checkReactionByID(int reactionID)
     {
         String endpoint = "http://localhost:5000";
@@ -284,16 +298,13 @@ public class UserInput {
 
     private static void react(List<String> commandElements){
         commandElements.remove(0);
-        System.out.println(commandElements);
         if(commandElements.size() == 0){
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
         boolean isPost;
         String postID = commandElements.get(1);
-        System.out.println("Post ID: " +  postID);
         String reactID = commandElements.get(2);
-        System.out.println("React ID: " +  reactID);
         switch (commandElements.get(0)) {
             case "post":
                 isPost = true;
@@ -320,20 +331,67 @@ public class UserInput {
             }
 
         } else {
-            //todo make sure that ID contains a valid commentID
-            //todo the react command was used to react to a COMMENT
-            //todo make sure the reaction is a valid reaction
+            if(checkCommentByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
+                makeCommentReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
+                return;
+            }else{
+                System.out.println("Either the post ID or reaction ID is not correct. Please try again.");
+                
+            }
         } 
     }
 
     public static void makePostReaction(int postID, int reactID){
         String endpoint = "http://localhost:5000";
-        PostReaction newReaction = new PostReaction(postID, reactID);
-        
-        String createReactUrl = endpoint + "/postreaction";
-        boolean execution_success = handleRequest(createReactUrl, newReaction, HttpMethod.POST);
-        if (execution_success) {
+        int reactionID = 0;
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction  = new Reaction(userId,reactID,currentTime);
+        String createReactUrl = endpoint + "/reaction";
+
+        ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
+        if(response.getBody()!=null){
             System.out.println("Successfully added reaction!");
+            reactionID = response.getBody().getReaction_id(); 
+        }else{
+            System.out.println("Something went wrong");
+            return;
+        }
+
+
+        PostReaction newPostReaction = new PostReaction(postID, reactionID);
+        String url = endpoint + "/postreaction";
+        boolean success = handleRequest(url, newPostReaction, HttpMethod.POST);
+        if (success) {
+            System.out.println("Successfully added post reaction!");
+        }else{
+            System.out.println("Something went wrong");
+        }
+    }
+
+    public static void makeCommentReaction(int commentID, int reactID){
+        String endpoint = "http://localhost:5000";
+        int reactionID = 0;
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction  = new Reaction(userId,reactID,currentTime);
+        String createReactUrl = endpoint + "/reaction";
+
+        ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
+        if(response.getBody()!=null){
+            System.out.println("Successfully added reaction!");
+            reactionID = response.getBody().getReaction_id(); 
+        }else{
+            System.out.println("Something went wrong");
+            return;
+        }
+
+
+        CommentReaction newCommentReaction = new CommentReaction(commentID, reactionID);
+        String url = endpoint + "/commentreaction";
+        boolean success = handleRequest(url, newCommentReaction, HttpMethod.POST);
+        if (success) {
+            System.out.println("Successfully added comment reaction!");
+        }else{
+            System.out.println("Something went wrong");
         }
     }
 

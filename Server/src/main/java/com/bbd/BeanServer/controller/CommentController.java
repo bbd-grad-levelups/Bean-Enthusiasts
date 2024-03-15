@@ -1,6 +1,7 @@
 package com.bbd.BeanServer.controller;
 
 
+import com.bbd.BeanServer.repository.CommentReactionRepository;
 import com.bbd.BeanServer.service.CommentReactionService;
 import com.bbd.BeanServer.service.CommentService;
 import com.bbd.BeanServer.service.ReactionService;
@@ -12,6 +13,9 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.bbd.shared.models.CommentReaction;
+import com.bbd.shared.models.Post;
+import com.bbd.shared.models.PostReaction;
+
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -28,19 +32,14 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @PostMapping("/commentreaction")
-    public ResponseEntity<Void> commentReaction(@RequestBody Map<String, Object> requestBody) throws ChangeSetPersister.NotFoundException {
-        ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private CommentReactionRepository commentReactionRepository;
 
-        // Deserialize Reaction object
-        Reaction newReaction = mapper.convertValue(requestBody.get("reaction"), Reaction.class);
-        reactionService.createReaction(newReaction);
+     @PostMapping("/commentreaction")
+    public ResponseEntity<Void> CommentReaction(@RequestBody CommentReaction newCommentReaction) {
 
-        // only if reaction is successfully created then this entity should be created with FK of reactionid
-        //TODO validation
-        CommentReaction newCommentReaction = mapper.convertValue(requestBody.get("commentReaction"), CommentReaction.class);
-        newCommentReaction.setReaction_id(newReaction.getReaction_id());
-        commentReactionService.createCommentReaction(newCommentReaction);
+        CommentReaction createdCommentReaction = commentReactionRepository.save(newCommentReaction);
+        createdCommentReaction.setReaction_id(newCommentReaction.getReaction_id());
         return ResponseEntity.ok().build();
     }
 
@@ -57,5 +56,18 @@ public class CommentController {
 
         return ResponseEntity.created(location).body(createdComment);
     }
+
+      @PostMapping("/findcomment")
+    ResponseEntity<?> returnSpecific(@RequestBody Comment request) {
+    if (request == null) {
+      return ResponseEntity.badRequest().body("No value given");
+    } else {
+      return commentService.getCommentById(request.getComment_id())
+          .map(x -> {
+            return ResponseEntity.ok(x);
+          })
+          .orElse(ResponseEntity.notFound().build());
+    }
+  }
 
 }

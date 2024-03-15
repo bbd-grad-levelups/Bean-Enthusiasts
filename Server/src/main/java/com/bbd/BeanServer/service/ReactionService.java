@@ -2,7 +2,6 @@ package com.bbd.BeanServer.service;
 
 
 import com.bbd.shared.models.Reaction;
-import com.bbd.shared.models.Tag;
 import com.bbd.BeanServer.repository.ReactionRepository;
 
 import java.util.Optional;

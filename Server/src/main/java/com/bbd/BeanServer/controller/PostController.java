@@ -1,5 +1,6 @@
 package com.bbd.BeanServer.controller;
 
+import com.bbd.BeanServer.repository.PostReactionRepository;
 import com.bbd.BeanServer.repository.PostRepository;
 import com.bbd.BeanServer.service.CommentReactionService;
 import com.bbd.BeanServer.service.PostReactionService;
@@ -31,6 +32,9 @@ class PostController {
 
     @Autowired
     private PostRepository beansRepository;
+
+    @Autowired
+    private PostReactionRepository postReactionRepository;
     @Autowired
     private PostService postService;
 
@@ -57,12 +61,8 @@ class PostController {
 
     @PostMapping("/postreaction")
     public ResponseEntity<Void> postReaction(@RequestBody PostReaction newPostReaction) {
-        ObjectMapper mapper = new ObjectMapper();
 
-
-        // only if reaction is successfully created then this entity should be created with FK of reactionid
-        //TODO validation
-        PostReaction createdPostReaction = postReactionService.createPostReaction(newPostReaction);
+        PostReaction createdPostReaction = postReactionRepository.save(newPostReaction);
         createdPostReaction.setReaction_id(newPostReaction.getReaction_id());
         return ResponseEntity.ok().build();
     }
