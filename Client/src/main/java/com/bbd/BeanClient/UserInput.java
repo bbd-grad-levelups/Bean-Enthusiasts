@@ -122,19 +122,11 @@ public class UserInput {
             postContent = scanner.nextLine();
         }
         String postTag = "";
-        //TODO: implement tag functionality
-        List<String> allTags = List.of("LIMA", "KIDNEY", "BLOOD");
-        while(postTag.equals("")){
-            System.out.println("All Possible Tags Are:");
-            allTags.forEach(System.out::println);
-            System.out.print("PostTag: ");
-            postTag = scanner.nextLine();
-            if(!allTags.contains(postTag.toUpperCase())){
-                postTag = "";
-                System.out.println("Please supply a valid tag from the supplied list");
-                return;
-            }
-        }
+        //viewTags();
+        //TODO: VIEW TAGS STUFF!!!
+        System.out.println("Pretend u can see the tags here, for testing, type in DIY");
+        System.out.print("Please provide the a tag from the above list");
+        postTag = scanner.nextLine();
         makePost(postTitle, postContent, postTag);
     }
 
@@ -142,7 +134,7 @@ public class UserInput {
 
         String endpoint = "http://localhost:5000";
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Post newPost = new Post(userId,1,postTitle,postContent,currentTime);
+        Post newPost = new Post(userId,getTagID(postTag),postTitle,postContent,currentTime);
         
         String createPostUrl = endpoint + "/createpost";
         boolean execution_success = handleRequest(createPostUrl, newPost, HttpMethod.POST);
@@ -220,7 +212,7 @@ public class UserInput {
         if(response.getBody()!=null){
             tagId = response.getBody().getTag_id(); 
         }else{
-            System.out.println("NO TAG PROVIDED!!!!!Defaulting :'(");
+            System.out.println("NO PROPER TAG PROVIDED!!!!!Defaulting :'( to 1");
         }
         return tagId;
     }
@@ -274,7 +266,6 @@ public class UserInput {
             return;
         }
         String postID = commandElements.get(0);
-        //todo check that this is a valid postID
         commandElements.remove(0);
 
         if(commandElements.size() == 0){
@@ -283,8 +274,6 @@ public class UserInput {
         }
         String comment = String.join(" ", commandElements);
 
-        //todo insert function that makes a comment
-        //using postID, comment
         makeComment( Integer.parseInt(postID),comment);
     }
 
@@ -295,7 +284,6 @@ public class UserInput {
             return;
         }
         String favBean = commandElements.get(0);
-        //todo check that the inputted bean is valid
     }
 
     private static void react(List<String> commandElements){
@@ -722,95 +710,111 @@ public class UserInput {
     }
 
     private static void addBean(List<String> commandElements) {
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() <= 1){
-            System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual bean name");
-            return;
-        } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
-            System.out.println("Invalid input argument for banned status");
-            return;
-        } else {
-
-            String url = ClientApplication.endpoint + "/favoritebean/add";
-            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
+        if(ClientApplication.isAdmin){
+            commandElements.remove(0);
+            if(commandElements.size() <= 1){
+                System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual bean name");
+                return;
+            } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
+                System.out.println("Invalid input argument for banned status");
+                return;
+            } else {
+    
+                String url = ClientApplication.endpoint + "/favoritebean/add";
+                FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
+                }
             }
-        }
-
-        
+        }else{
+            System.out.println("You need to be an admin to execute this command!");
+        }     
         
     }
 
     private static void addTag(List<String> commandElements) {
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual tag name");
-            return;
-        } else {
-
-            String url = ClientApplication.endpoint + "/tag/add";
-            RestTemplate restTemplate = new RestTemplate();
-            Tag newEntity = new Tag(commandElements.get(0));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
+        if(ClientApplication.isAdmin)
+        {
+            commandElements.remove(0);
+            if(commandElements.size() == 0){
+                System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual tag name");
+                return;
+            } else {
+    
+                String url = ClientApplication.endpoint + "/tag/add";
+                RestTemplate restTemplate = new RestTemplate();
+                Tag newEntity = new Tag(commandElements.get(0));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
+                }
             }
+            
+        }else{
+            System.out.println("You must be an admin user to execute this command!");
         }
-        
+       
     }
 
     private static void removeBean(List<String> commandElements){
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual bean name");
-            return;
-        } else {
-            
-            String url = ClientApplication.endpoint + "/favoritebean/remove";
-            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
+        if(ClientApplication.isAdmin)
+        {
+            commandElements.remove(0);
+            if(commandElements.size() == 0){
+                System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual bean name");
+                return;
+            } else {
+                
+                String url = ClientApplication.endpoint + "/favoritebean/remove";
+                FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
+                }
             }
+        }else{
+            System.out.println("You need to be an admin to execute this command");
         }
+       
     }
 
     private static void removeTag(List<String> commandElements){
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual tag name");
-            return;
-        } else {
-            
-            String url = ClientApplication.endpoint + "/tag/remove";
-            Tag newEntity = new Tag(commandElements.get(0));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
+        if(ClientApplication.isAdmin)
+        {
+            commandElements.remove(0);
+            if(commandElements.size() == 0){
+                System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual tag name");
+                return;
+            } else {
+                
+                String url = ClientApplication.endpoint + "/tag/remove";
+                Tag newEntity = new Tag(commandElements.get(0));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
+                }
             }
+        }else{
+            System.out.println("You must be an admin to execute this command!");
         }
+
     }
 
     private static void ban(List<String> commandElements){
