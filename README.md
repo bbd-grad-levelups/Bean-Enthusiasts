@@ -84,18 +84,18 @@ BBD Graduate Program JavaLevel-up (2024)
 ## How to download, install and run the Java application.
 
 #### Assumptions 
-(1) The user has WSL installed. (Assumed that the user is using Windows)
+1. The user has WSL installed. (Assumed that the user is using Windows)
 
 ### Instructions
-(1) Navigate to the BeanEnthusiasts GitRepo
-(2) On the right of the page, click on "Releases" 
+1. Navigate to the BeanEnthusiasts GitRepo
+2. On the right of the page, click on `Releases` 
     *Please ensure, you are in the lastest release.
-(3) Once in "Releases", go to "Assests"
-(4) Download the ".deb" file
-(5) Once installed. Save the file in a directory that can be accessed by WSL 
-(6) Navigate to the directory, that you have saved the file in
-(7) Run "cd /opt/beanclient/bin"
-(8) Run "./BeanClient"
+3. Once in `Releases`, go to `Assests`
+4. Download the `.deb` file
+5. Once installed. Save the file in a directory that can be accessed by WSL 
+6. Navigate to the directory, that you have saved the file in
+7. Run `cd /opt/beanclient/bin`
+8. Run `./BeanClient`
 
 
 
