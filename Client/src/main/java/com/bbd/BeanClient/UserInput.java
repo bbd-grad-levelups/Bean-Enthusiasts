@@ -152,11 +152,10 @@ public class UserInput {
 
     public static void makePost(String postTitle, String postContent, String postTag){
 
-        String endpoint = "http://localhost:5000";
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Post newPost = new Post(userId,getTagID(postTag),postTitle,postContent,currentTime);
         
-        String createPostUrl = endpoint + "/createpost";
+        String createPostUrl = ClientApplication.endpoint + "/createpost";
         boolean execution_success = handleRequest(createPostUrl, newPost, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully created Post");
@@ -166,11 +165,10 @@ public class UserInput {
 
     public static void makeComment(int postId, String commentContent){
 
-        String endpoint = "http://localhost:5000";
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Comment newComment = new Comment(postId,userId,commentContent,currentTime);
         
-        String createCommentUrl = endpoint + "/createcomment";
+        String createCommentUrl = ClientApplication.endpoint + "/createcomment";
         boolean execution_success = handleRequest(createCommentUrl, newComment, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully created comment on post.");
@@ -196,10 +194,10 @@ public class UserInput {
      * Create User Profile
      */
     private static void createUserProfile(int favBean, String  username, String bio) {
-        String endpoint = "http://localhost:5000";
+
         Users newUser = new Users(1,favBean,username,bio);
         
-        String createUserUrl = endpoint + "/createUserProfile";
+        String createUserUrl = ClientApplication.endpoint + "/createUserProfile";
         boolean execution_success = handleRequest(createUserUrl, newUser, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully added user");
@@ -210,8 +208,7 @@ public class UserInput {
     public static int getBeanID(String name)
     {
         int beanId = 10;
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/favoritebean/find";
+        String url = ClientApplication.endpoint + "/favoritebean/find";
         FavoriteBean requestBean = new FavoriteBean(name);
         ResponseEntity<FavoriteBean> response = executeClassRequest(url,requestBean,HttpMethod.POST,FavoriteBean.class);
         if(response.getBody()!=null){
@@ -225,8 +222,7 @@ public class UserInput {
     public static int getTagID(String name)
     {
         int tagId = 1;
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/tag/find";
+        String url = ClientApplication.endpoint + "/tag/find";
         Tag requestTag = new Tag(name);
         ResponseEntity<Tag> response = executeClassRequest(url,requestTag,HttpMethod.POST,Tag.class);
         if(response.getBody()!=null){
@@ -239,8 +235,7 @@ public class UserInput {
 
     public static boolean checkPostByID(int postID)
     {
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/findpost";
+        String url = ClientApplication.endpoint + "/findpost";
         Post requestPost = new Post(postID);
         ResponseEntity<Post> response = executeClassRequest(url,requestPost,HttpMethod.POST,Post.class);
         if(response.getBody()!=null){
@@ -253,8 +248,7 @@ public class UserInput {
 
     public static boolean checkCommentByID(int commentID)
     {
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/findcomment";
+        String url = ClientApplication.endpoint + "/findcomment";
         Comment requestComment = new Comment(commentID);
         ResponseEntity<Comment> response = executeClassRequest(url,requestComment,HttpMethod.POST,Comment.class);
         if(response.getBody()!=null){
@@ -267,8 +261,7 @@ public class UserInput {
 
     public static boolean checkReactionByID(int reactionID)
     {
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/findreaction";
+        String url = ClientApplication.endpoint + "/findreaction";
         ReactionType requestReaction = new ReactionType(reactionID);
         ResponseEntity<ReactionType> response = executeClassRequest(url,requestReaction,HttpMethod.POST,ReactionType.class);
         if(response.getBody()!=null){
@@ -432,11 +425,10 @@ public class UserInput {
     }
 
     public static void makePostReaction(int postID, int reactID){
-        String endpoint = "http://localhost:5000";
         int reactionID = 0;
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction  = new Reaction(userId,reactID,currentTime);
-        String createReactUrl = endpoint + "/reaction";
+        String createReactUrl = ClientApplication.endpoint + "/reaction";
 
         ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
         if(response.getBody()!=null){
@@ -449,7 +441,7 @@ public class UserInput {
 
 
         PostReaction newPostReaction = new PostReaction(postID, reactionID);
-        String url = endpoint + "/postreaction";
+        String url = ClientApplication.endpoint + "/postreaction";
         boolean success = handleRequest(url, newPostReaction, HttpMethod.POST);
         if (success) {
             System.out.println("Successfully added post reaction!");
@@ -459,11 +451,10 @@ public class UserInput {
     }
 
     public static void makeCommentReaction(int commentID, int reactID){
-        String endpoint = "http://localhost:5000";
         int reactionID = 0;
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction  = new Reaction(userId,reactID,currentTime);
-        String createReactUrl = endpoint + "/reaction";
+        String createReactUrl = ClientApplication.endpoint + "/reaction";
 
         ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
         if(response.getBody()!=null){
@@ -476,7 +467,7 @@ public class UserInput {
 
 
         CommentReaction newCommentReaction = new CommentReaction(commentID, reactionID);
-        String url = endpoint + "/commentreaction";
+        String url = ClientApplication.endpoint + "/commentreaction";
         boolean success = handleRequest(url, newCommentReaction, HttpMethod.POST);
         if (success) {
             System.out.println("Successfully added comment reaction!");

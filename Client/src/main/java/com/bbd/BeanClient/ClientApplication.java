@@ -34,7 +34,7 @@ public class ClientApplication {
 
     public static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
     
-    public final static String endpoint = "http://localhost:5000";
+    public final static String endpoint = "http://beanserver-env.eba-mgswgarz.eu-west-1.elasticbeanstalk.com";
 
     public static void main(String[] args) {
         a.loginFlow();
