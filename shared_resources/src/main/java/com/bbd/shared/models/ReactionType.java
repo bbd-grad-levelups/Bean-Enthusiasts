@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,4 +21,9 @@ public class ReactionType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int reaction_type_id;
     String bean_name;
+
+    public ReactionType(int reactionId) {
+        this.reaction_type_id = reactionId;
+
+    }
 }

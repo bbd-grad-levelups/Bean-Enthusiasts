@@ -1,5 +1,6 @@
 package com.bbd.BeanServer.controller;
 
+import com.bbd.BeanServer.repository.PostReactionRepository;
 import com.bbd.BeanServer.repository.PostRepository;
 import com.bbd.BeanServer.repository.UserRepository;
 import com.bbd.BeanServer.service.CommentReactionService;
@@ -38,6 +39,9 @@ class PostController {
 
     @Autowired
     private PostRepository beansRepository;
+
+    @Autowired
+    private PostReactionRepository postReactionRepository;
     @Autowired
     private PostService postService;
     @Autowired
@@ -68,21 +72,12 @@ class PostController {
     }
 
     @PostMapping("/postreaction")
-    public ResponseEntity<Void> postReaction(@RequestBody Map<String, Object> requestBody) throws ChangeSetPersister.NotFoundException {
-        ObjectMapper mapper = new ObjectMapper();
+    public ResponseEntity<Void> postReaction(@RequestBody PostReaction newPostReaction) {
 
-        // Deserialize Reaction object
-        Reaction newReaction = mapper.convertValue(requestBody.get("reaction"), Reaction.class);
-        reactionService.createReaction(newReaction);
-
-        // only if reaction is successfully created then this entity should be created with FK of reactionid
-        //TODO validation
-        PostReaction newpostReaction = mapper.convertValue(requestBody.get("postReaction"), PostReaction.class);
-        newpostReaction.setReaction_id(newReaction.getReaction_id());
-        postReactionService.createPostReaction(newpostReaction);
+        PostReaction createdPostReaction = postReactionRepository.save(newPostReaction);
+        createdPostReaction.setReaction_id(newPostReaction.getReaction_id());
         return ResponseEntity.ok().build();
     }
-
     @PostMapping("/posts")
     ResponseEntity<?> returnAllPosts(@RequestBody String request) {
         return ResponseEntity.ok(postRepository.findAll());
@@ -104,6 +99,22 @@ class PostController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+    @PostMapping("/findpost")
+    ResponseEntity<?> returnSpecific(@RequestBody Post request) {
+    if (request == null) {
+      return ResponseEntity.badRequest().body("No value given");
+    } else {
+      return postService.getPostById(request.getPostId())
+          .map(x -> {
+            return ResponseEntity.ok(x);
+          })
+          .orElse(ResponseEntity.notFound().build());
+    }
+  }
+
+
+
 
     @PostMapping("/posts/new")
     ResponseEntity<?> returnNewestPost(@RequestBody String mystring) {
@@ -127,20 +138,11 @@ class PostController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
 }
 
 
-// @PostMapping("/tag/find")
-// ResponseEntity<?> returnSpecific(@RequestBody Tag request) {
-//   if (request == null) {
-//     return ResponseEntity.badRequest().body("No value given");
-//   } else {
-//     return service.getTagByName(request.getTag_name())
-//         .map(x -> {
-//           return ResponseEntity.ok(x);
-//         })
-//         .orElse(ResponseEntity.notFound().build());
-//   }
-// }
+
+
+
+
+

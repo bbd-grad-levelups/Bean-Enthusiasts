@@ -22,7 +22,7 @@ class TagController {
   @Autowired
   TagService service;
 
-  @GetMapping("/tag")
+  @PostMapping("/tag")
   ResponseEntity<?> returnAll() {
     List<Tag> tags = repository.findAll();
     return tags.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tags);

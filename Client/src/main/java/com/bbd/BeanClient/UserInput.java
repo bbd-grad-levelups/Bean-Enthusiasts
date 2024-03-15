@@ -1,5 +1,6 @@
 package com.bbd.BeanClient;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -19,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import com.bbd.BeanClient.util.AuthenticationProcess;
 import com.bbd.shared.models.*;
 
+import ch.qos.logback.core.pattern.PostCompileProcessor;
+
 
 public class UserInput {
     public static Scanner scanner = new Scanner(System.in);
@@ -30,6 +33,8 @@ public class UserInput {
             processCommand(userInput);
         }
     }
+
+    public static int userId;
 
 
     public static void processCommand(String str){
@@ -117,23 +122,40 @@ public class UserInput {
             postContent = scanner.nextLine();
         }
         String postTag = "";
-        //todo all possible tags
-        List<String> allTags = List.of("LIMA", "KIDNEY", "BLOOD");
-        while(postTag.equals("")){
-            System.out.println("All Possible Tags Are:");
-            allTags.forEach(System.out::println);
-            System.out.print("PostTag: ");
-            postTag = scanner.nextLine();
-            if(!allTags.contains(postTag.toUpperCase())){
-                postTag = "";
-                System.out.println("Please supply a valid tag from the supplied list");
-            }
+        //viewTags();
+        //TODO: VIEW TAGS STUFF!!!
+        System.out.println("Pretend u can see the tags here, for testing, type in DIY");
+        System.out.print("Please provide the a tag from the above list");
+        postTag = scanner.nextLine();
+        makePost(postTitle, postContent, postTag);
+    }
+
+    public static void makePost(String postTitle, String postContent, String postTag){
+
+        String endpoint = "http://localhost:5000";
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Post newPost = new Post(userId,getTagID(postTag),postTitle,postContent,currentTime);
+        
+        String createPostUrl = endpoint + "/createpost";
+        boolean execution_success = handleRequest(createPostUrl, newPost, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully created Post");
         }
-        //todo run the make post function passing in
-        // postTitle, postContent, postTag
-        System.out.println(postTitle);
-        System.out.println(postContent);
-        System.out.println(postTag.toUpperCase());
+
+    }
+
+    public static void makeComment(int postId, String commentContent){
+
+        String endpoint = "http://localhost:5000";
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Comment newComment = new Comment(postId,userId,commentContent,currentTime);
+        
+        String createCommentUrl = endpoint + "/createcomment";
+        boolean execution_success = handleRequest(createCommentUrl, newComment, HttpMethod.POST);
+        if (execution_success) {
+            System.out.println("Successfully created comment on post.");
+        }
+
     }
 
     public static void makeProfile(String username){
@@ -147,6 +169,7 @@ public class UserInput {
         System.out.println("Please enter your favorite bean from the available list: ");
         favBean = scanner.nextLine();
         createUserProfile(getBeanID(favBean),username,bio);
+        ClientApplication.profileGet();
     }
 
     /*
@@ -160,6 +183,7 @@ public class UserInput {
         boolean execution_success = handleRequest(createUserUrl, newUser, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully added user");
+            
         }
     }
 
@@ -178,6 +202,63 @@ public class UserInput {
         return beanId;
     }
 
+    public static int getTagID(String name)
+    {
+        int tagId = 1;
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/tag/find";
+        Tag requestTag = new Tag(name);
+        ResponseEntity<Tag> response = executeClassRequest(url,requestTag,HttpMethod.POST,Tag.class);
+        if(response.getBody()!=null){
+            tagId = response.getBody().getTag_id(); 
+        }else{
+            System.out.println("NO PROPER TAG PROVIDED!!!!!Defaulting :'( to 1");
+        }
+        return tagId;
+    }
+
+    public static boolean checkPostByID(int postID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findpost";
+        Post requestPost = new Post(postID);
+        ResponseEntity<Post> response = executeClassRequest(url,requestPost,HttpMethod.POST,Post.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected post does not exist");
+            return false;
+        }
+    }
+
+    public static boolean checkCommentByID(int commentID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findcomment";
+        Comment requestComment = new Comment(commentID);
+        ResponseEntity<Comment> response = executeClassRequest(url,requestComment,HttpMethod.POST,Comment.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected comment does not exist");
+            return false;
+        }
+    }
+
+    public static boolean checkReactionByID(int reactionID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findreaction";
+        ReactionType requestReaction = new ReactionType(reactionID);
+        ResponseEntity<ReactionType> response = executeClassRequest(url,requestReaction,HttpMethod.POST,ReactionType.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected reaction type does not exist");
+            return false;
+        }
+    }
+
     private static void comment(List<String> commandElements){
         commandElements.remove(0);
         if(commandElements.size() == 0){
@@ -185,7 +266,6 @@ public class UserInput {
             return;
         }
         String postID = commandElements.get(0);
-        //todo check that this is a valid postID
         commandElements.remove(0);
 
         if(commandElements.size() == 0){
@@ -194,8 +274,7 @@ public class UserInput {
         }
         String comment = String.join(" ", commandElements);
 
-        //todo insert function that makes a comment
-        //using postID, comment
+        makeComment( Integer.parseInt(postID),comment);
     }
 
     private static void set(List<String> commandElements){
@@ -205,7 +284,6 @@ public class UserInput {
             return;
         }
         String favBean = commandElements.get(0);
-        //todo check that the inputted bean is valid
     }
 
     private static void react(List<String> commandElements){
@@ -214,15 +292,10 @@ public class UserInput {
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
-        if(!commandElements.get(0).contains("=")){
-            System.out.println("Incorrect usage of the 'react' command.\n\tCheck the 'bean help' command for usage.");
-            return;
-        }
-        List<String> third = Arrays.stream(commandElements.get(0).split("=", -2))
-            .collect(Collectors.toList());
         boolean isPost;
-        String ID = third.get(1);
-        switch (third.get(0)) {
+        String postID = commandElements.get(1);
+        String reactID = commandElements.get(2);
+        switch (commandElements.get(0)) {
             case "post":
                 isPost = true;
                 break;
@@ -230,7 +303,7 @@ public class UserInput {
                 isPost = false;
                 break;
             default:
-                System.out.println(third.get(0) + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
+                System.out.println(commandElements.get(0) + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
                 return;
         }
         commandElements.remove(0);
@@ -238,17 +311,78 @@ public class UserInput {
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
-        String body = String.join(" ", commandElements);
-
         if(isPost){
-            //todo make sure that ID contains a valid postID
-            //todo the react command was used to react to a POST
-            //todo make sure the reaction is a valid reaction
+            if(checkPostByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
+                makePostReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
+                return;
+            }else{
+                System.out.println("Either the post ID or reaction ID is not correct. Please try again.");
+                
+            }
+
         } else {
-            //todo make sure that ID contains a valid commentID
-            //todo the react command was used to react to a COMMENT
-            //todo make sure the reaction is a valid reaction
+            if(checkCommentByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
+                makeCommentReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
+                return;
+            }else{
+                System.out.println("Either the post ID or reaction ID is not correct. Please try again.");
+                
+            }
         } 
+    }
+
+    public static void makePostReaction(int postID, int reactID){
+        String endpoint = "http://localhost:5000";
+        int reactionID = 0;
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction  = new Reaction(userId,reactID,currentTime);
+        String createReactUrl = endpoint + "/reaction";
+
+        ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
+        if(response.getBody()!=null){
+            System.out.println("Successfully added reaction!");
+            reactionID = response.getBody().getReaction_id(); 
+        }else{
+            System.out.println("Something went wrong");
+            return;
+        }
+
+
+        PostReaction newPostReaction = new PostReaction(postID, reactionID);
+        String url = endpoint + "/postreaction";
+        boolean success = handleRequest(url, newPostReaction, HttpMethod.POST);
+        if (success) {
+            System.out.println("Successfully added post reaction!");
+        }else{
+            System.out.println("Something went wrong");
+        }
+    }
+
+    public static void makeCommentReaction(int commentID, int reactID){
+        String endpoint = "http://localhost:5000";
+        int reactionID = 0;
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction  = new Reaction(userId,reactID,currentTime);
+        String createReactUrl = endpoint + "/reaction";
+
+        ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
+        if(response.getBody()!=null){
+            System.out.println("Successfully added reaction!");
+            reactionID = response.getBody().getReaction_id(); 
+        }else{
+            System.out.println("Something went wrong");
+            return;
+        }
+
+
+        CommentReaction newCommentReaction = new CommentReaction(commentID, reactionID);
+        String url = endpoint + "/commentreaction";
+        boolean success = handleRequest(url, newCommentReaction, HttpMethod.POST);
+        if (success) {
+            System.out.println("Successfully added comment reaction!");
+        }else{
+            System.out.println("Something went wrong");
+        }
     }
 
 
@@ -385,7 +519,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -451,7 +585,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -576,95 +710,111 @@ public class UserInput {
     }
 
     private static void addBean(List<String> commandElements) {
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() <= 1){
-            System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual bean name");
-            return;
-        } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
-            System.out.println("Invalid input argument for banned status");
-            return;
-        } else {
-
-            String url = ClientApplication.endpoint + "/favoritebean/add";
-            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
+        if(ClientApplication.isAdmin){
+            commandElements.remove(0);
+            if(commandElements.size() <= 1){
+                System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual bean name");
+                return;
+            } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
+                System.out.println("Invalid input argument for banned status");
+                return;
+            } else {
+    
+                String url = ClientApplication.endpoint + "/favoritebean/add";
+                FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
+                }
             }
-        }
-
-        
+        }else{
+            System.out.println("You need to be an admin to execute this command!");
+        }     
         
     }
 
     private static void addTag(List<String> commandElements) {
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual tag name");
-            return;
-        } else {
-
-            String url = ClientApplication.endpoint + "/tag/add";
-            RestTemplate restTemplate = new RestTemplate();
-            Tag newEntity = new Tag(commandElements.get(0));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
+        if(ClientApplication.isAdmin)
+        {
+            commandElements.remove(0);
+            if(commandElements.size() == 0){
+                System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual tag name");
+                return;
+            } else {
+    
+                String url = ClientApplication.endpoint + "/tag/add";
+                RestTemplate restTemplate = new RestTemplate();
+                Tag newEntity = new Tag(commandElements.get(0));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
+                }
             }
+            
+        }else{
+            System.out.println("You must be an admin user to execute this command!");
         }
-        
+       
     }
 
     private static void removeBean(List<String> commandElements){
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual bean name");
-            return;
-        } else {
-            
-            String url = ClientApplication.endpoint + "/favoritebean/remove";
-            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
+        if(ClientApplication.isAdmin)
+        {
+            commandElements.remove(0);
+            if(commandElements.size() == 0){
+                System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual bean name");
+                return;
+            } else {
+                
+                String url = ClientApplication.endpoint + "/favoritebean/remove";
+                FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
+                }
             }
+        }else{
+            System.out.println("You need to be an admin to execute this command");
         }
+       
     }
 
     private static void removeTag(List<String> commandElements){
-        //todo check that the user is an admin
-        commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
-            return;
-        } else if (commandElements.get(0).isEmpty()) {
-            System.out.println("Please enter an actual tag name");
-            return;
-        } else {
-            
-            String url = ClientApplication.endpoint + "/tag/remove";
-            Tag newEntity = new Tag(commandElements.get(0));
-
-            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-            if (execution_success) {
-                System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
+        if(ClientApplication.isAdmin)
+        {
+            commandElements.remove(0);
+            if(commandElements.size() == 0){
+                System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
+                return;
+            } else if (commandElements.get(0).isEmpty()) {
+                System.out.println("Please enter an actual tag name");
+                return;
+            } else {
+                
+                String url = ClientApplication.endpoint + "/tag/remove";
+                Tag newEntity = new Tag(commandElements.get(0));
+    
+                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+                if (execution_success) {
+                    System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
+                }
             }
+        }else{
+            System.out.println("You must be an admin to execute this command!");
         }
+
     }
 
     private static void ban(List<String> commandElements){
