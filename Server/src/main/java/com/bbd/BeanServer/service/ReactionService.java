@@ -13,13 +13,13 @@ import org.springframework.stereotype.Service;
 public class ReactionService {
 
     @Autowired
-    private static ReactionRepository reactionRepository;
+    private ReactionRepository reactionRepository;
 
     public Reaction createReaction(Reaction newReaction) {
         return reactionRepository.save(newReaction);
     }
 
-    public static Optional<Reaction> getReactionById(int id) {
+    public Optional<Reaction> getReactionById(int id) {
       return reactionRepository.findAll().stream()
       .filter(x -> x.getReaction_id()==id)
       .findFirst();

@@ -1,7 +1,7 @@
 package com.bbd.BeanClient;
 
 import com.bbd.BeanClient.util.AuthenticationProcess;
-
+import com.bbd.BeanClient.util.ViewBuilder;
 import com.bbd.shared.models.*;
 
 import org.springframework.boot.CommandLineRunner;
@@ -34,10 +34,11 @@ public class ClientApplication {
 
     public static AuthenticationProcess a = new AuthenticationProcess("bb6557e63877b23e4b6f");
     
-    public final static String endpoint = "http://localhost:5000";
+    public final static String endpoint = "http://beanserver-env.eba-mgswgarz.eu-west-1.elasticbeanstalk.com";
 
     public static void main(String[] args) {
         a.loginFlow();
+        profileGet();
         SpringApplication.run(ClientApplication.class, args);
     }
 
@@ -52,7 +53,6 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");    
             
-            System.out.println("Tests completed, starting client");
 
             while (true) {
                 System.out.print("\n\n>");
@@ -121,7 +121,7 @@ public class ClientApplication {
      */
     private static void createComment() {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Comment newComment = new Comment(1, 2, "Hey ya!", currentTime);
+        Comment newComment = new Comment(1, 2, "This is my comment!",currentTime);
         String createCommentUrl = endpoint + "/createcomment";
         RestTemplate restTemplate = new RestTemplate();
 
@@ -132,22 +132,6 @@ public class ClientApplication {
         } else {
             System.out.println("Failed to create post. Status code: " + responseEntity.getStatusCode());
         }
-    }
-
-
-    /*
-     * Fetch Favorite Beans
-     */
-    public static String retrieveFavoriteBeans() {
-        String favBeansUrl = endpoint + "/favoritebeans";
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        String favBeans = restTemplate.getForObject(favBeansUrl, String.class);
-
-        System.out.println("Fav beans are " + favBeans);
-
-        return favBeans;
     }
 
     /*
@@ -163,7 +147,7 @@ public class ClientApplication {
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId);
+        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId, currentTime);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);
@@ -177,26 +161,6 @@ public class ClientApplication {
         } else {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
-    }
-
-
-
-    public ResponseEntity<String> yourMethod(String accessToken) {
-        // Your logic to generate response
-        String responseBody = "Your response body here";
-
-        // Creating HttpHeaders object to add headers
-        HttpHeaders headers = new HttpHeaders();
-
-        // Adding headers to HttpHeaders object
-        headers.add("Custom-Header", "Custom-Value");
-        headers.add("Another-Header", "Another-Value");
-        headers.add("Authorization", "Bearer " + accessToken);
-
-        // Creating ResponseEntity with headers and status
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
-
-        return responseEntity;
     }
 
     /*

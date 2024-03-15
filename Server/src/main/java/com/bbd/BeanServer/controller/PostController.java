@@ -78,6 +78,8 @@ class PostController {
         createdPostReaction.setReaction_id(newPostReaction.getReaction_id());
         return ResponseEntity.ok().build();
     }
+
+
     @PostMapping("/posts")
     ResponseEntity<?> returnAllPosts(@RequestBody String request) {
         return ResponseEntity.ok(postRepository.findAll());

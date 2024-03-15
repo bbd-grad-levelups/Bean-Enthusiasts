@@ -1,8 +1,10 @@
 package com.bbd.BeanClient;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.bbd.BeanClient.util.AuthenticationProcess;
+import com.bbd.BeanClient.util.ViewBuilder;
 import com.bbd.shared.models.*;
 
 import ch.qos.logback.core.pattern.PostCompileProcessor;
@@ -93,17 +96,34 @@ public class UserInput {
             System.out.println("Note, the help command does not accept any other arguments");
         }
         
-        System.out.println("Help Screen:");
-        System.out.println("bean help\t\t\t\tDisplay this help screen.");
-        System.out.println("bean prof\t\t\t\tCreate or view user profiles.");
-        System.out.println("bean post <PostTitle>\t\t\tCreate a new post with the specified title.");
-        System.out.println("bean com <PostID> <comment>\t\tAdd a comment to a post.");
-        System.out.println("bean set <FavouriteBean>\t\tSet your favorite bean.");
-        System.out.println("bean react <type=ID> <reaction>\tReact to a post or comment.");
-        System.out.println("bean view <option>\t\t\tView posts, profiles, or other data.");
-        System.out.println("bean add <option>\t\t\tAdd new beans or tags.");
-        System.out.println("bean rem <BeanName>\t\t\tRemove a bean.");
-        System.out.println("bean ban <BeanName> [true/false]\tBan or unban a bean.");
+        System.out.println("Help Screen:########################################################################");
+        System.out.println("bean help                          Display this help screen.\n");
+        System.out.println("bean post <PostTitle>              Create a new post with the specified title.\n");
+        System.out.println("bean prof                          Create user profile.\n");
+        System.out.println("bean com <PostID> <comment>        Add a comment to a post.\n");
+        System.out.println("bean set <FavouriteBean>           Set your favorite bean.\n");
+        System.out.println("bean react <type> <ID> <reaction>    React to a post or comment.");
+        System.out.println("           type is either [post/comment]");
+        System.out.println("           ID needs to match a postID or a commentID depending on the type");
+        System.out.println("           reaction is either [1/0]   1=like   and   0=dislike\n");
+        System.out.println("bean view <option>                 View posts, profiles, or other data.");
+        System.out.println("           Options include:");
+        System.out.println("           'post <postID>'      View a specific post");
+        System.out.println("           'post-all'      View all posts");
+        System.out.println("           'post-recent'      View most recent post");
+        System.out.println("           'post-me <?UserName?>'      View your own posts or supply the username of another user");
+        System.out.println("           'prof <?UserName?>'      View your own profile or supply the username of another user");
+        System.out.println("           'favbeans'      View a list of all the favourite beans");
+        System.out.println("           'tags'      View a list of all the available beans\n");
+        System.out.println("bean add <option>                  Add new beans or tags.\n");
+        System.out.println("           option is either [bean/tag]");
+        System.out.println("           bean add bean <name> <true/false>");
+        System.out.println("           bean add bean <name>\n");
+        System.out.println("bean rem <option>                  Remove a bean or tag.");
+        System.out.println("           option is either [bean/tag]");
+        System.out.println("           bean add bean <name>");
+        System.out.println("           bean add bean <name>\n");
+        System.out.println("bean ban <BeanName> [true/false]   Ban or unban a bean.\n");
 
     }
 
@@ -132,11 +152,10 @@ public class UserInput {
 
     public static void makePost(String postTitle, String postContent, String postTag){
 
-        String endpoint = "http://localhost:5000";
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Post newPost = new Post(userId,getTagID(postTag),postTitle,postContent,currentTime);
         
-        String createPostUrl = endpoint + "/createpost";
+        String createPostUrl = ClientApplication.endpoint + "/createpost";
         boolean execution_success = handleRequest(createPostUrl, newPost, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully created Post");
@@ -146,11 +165,10 @@ public class UserInput {
 
     public static void makeComment(int postId, String commentContent){
 
-        String endpoint = "http://localhost:5000";
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Comment newComment = new Comment(postId,userId,commentContent,currentTime);
         
-        String createCommentUrl = endpoint + "/createcomment";
+        String createCommentUrl = ClientApplication.endpoint + "/createcomment";
         boolean execution_success = handleRequest(createCommentUrl, newComment, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully created comment on post.");
@@ -176,10 +194,10 @@ public class UserInput {
      * Create User Profile
      */
     private static void createUserProfile(int favBean, String  username, String bio) {
-        String endpoint = "http://localhost:5000";
+
         Users newUser = new Users(1,favBean,username,bio);
         
-        String createUserUrl = endpoint + "/createUserProfile";
+        String createUserUrl = ClientApplication.endpoint + "/createUserProfile";
         boolean execution_success = handleRequest(createUserUrl, newUser, HttpMethod.POST);
         if (execution_success) {
             System.out.println("Successfully added user");
@@ -190,8 +208,7 @@ public class UserInput {
     public static int getBeanID(String name)
     {
         int beanId = 10;
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/favoritebean/find";
+        String url = ClientApplication.endpoint + "/favoritebean/find";
         FavoriteBean requestBean = new FavoriteBean(name);
         ResponseEntity<FavoriteBean> response = executeClassRequest(url,requestBean,HttpMethod.POST,FavoriteBean.class);
         if(response.getBody()!=null){
@@ -205,8 +222,7 @@ public class UserInput {
     public static int getTagID(String name)
     {
         int tagId = 1;
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/tag/find";
+        String url = ClientApplication.endpoint + "/tag/find";
         Tag requestTag = new Tag(name);
         ResponseEntity<Tag> response = executeClassRequest(url,requestTag,HttpMethod.POST,Tag.class);
         if(response.getBody()!=null){
@@ -219,8 +235,7 @@ public class UserInput {
 
     public static boolean checkPostByID(int postID)
     {
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/findpost";
+        String url = ClientApplication.endpoint + "/findpost";
         Post requestPost = new Post(postID);
         ResponseEntity<Post> response = executeClassRequest(url,requestPost,HttpMethod.POST,Post.class);
         if(response.getBody()!=null){
@@ -233,8 +248,7 @@ public class UserInput {
 
     public static boolean checkCommentByID(int commentID)
     {
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/findcomment";
+        String url = ClientApplication.endpoint + "/findcomment";
         Comment requestComment = new Comment(commentID);
         ResponseEntity<Comment> response = executeClassRequest(url,requestComment,HttpMethod.POST,Comment.class);
         if(response.getBody()!=null){
@@ -247,8 +261,7 @@ public class UserInput {
 
     public static boolean checkReactionByID(int reactionID)
     {
-        String endpoint = "http://localhost:5000";
-        String url = endpoint + "/findreaction";
+        String url = ClientApplication.endpoint + "/findreaction";
         ReactionType requestReaction = new ReactionType(reactionID);
         ResponseEntity<ReactionType> response = executeClassRequest(url,requestReaction,HttpMethod.POST,ReactionType.class);
         if(response.getBody()!=null){
@@ -279,11 +292,89 @@ public class UserInput {
 
     private static void set(List<String> commandElements){
         commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'set' command needs a favouriteBean when using it.\nPlease run 'bean set <FavouriteBean>'");
+        if(commandElements.size() < 1){
+            System.out.println("The 'set' command needs an option when using it.\nPlease run 'bean set <option>'");
             return;
         }
+
+        String third = commandElements.get(0);
+        switch (third) {
+            case "bean":
+                setFavBean(commandElements);
+                break;
+            case "bio":
+                setBio(commandElements);
+                break;
+            default:
+                System.out.println(third + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
+                return;
+        }
+        
+    
+    }
+
+    private static void setFavBean(List<String> commandElements) {
+        commandElements.remove(0);
+
         String favBean = commandElements.get(0);
+        String username;
+        if (ClientApplication.isAdmin && commandElements.size() == 2) {
+            username = commandElements.get(1);
+        } else {
+            username = AuthenticationProcess.getUsername();
+        }
+
+        String url = ClientApplication.endpoint + "/favoritebean";
+        
+        ResponseEntity<List<FavoriteBean>> responseEntity = executeViewRequest(url, null, 
+        HttpMethod.GET, new ParameterizedTypeReference<List<FavoriteBean>>() {});
+
+        Optional<FavoriteBean> chosenBean = Optional.ofNullable(responseEntity.getBody()).orElseGet(ArrayList::new)
+        .stream().filter(x -> x.getBeanName().equalsIgnoreCase(favBean)).findFirst();
+
+        if(!chosenBean.isPresent()) {
+            System.out.println("Please choose a bean from the list of beans - view the list with 'bean view favbeans'");
+        } else if (chosenBean.get().isBanned()){ 
+            System.out.println("This bean is banned! Please select an allowed bean as your favorite");
+        } else {
+            url = ClientApplication.endpoint + "/user/setbean/" + username;
+
+            boolean execution_success = handleRequest(url, chosenBean.get(), HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully set " + chosenBean.get().getBeanName() + " as your favorite!");
+            }
+        }
+    }
+
+    private static void setBio(List<String> commandElements) {
+        commandElements.remove(0);
+
+        
+        String newBio = "";
+        if (!commandElements.isEmpty()) {
+            System.out.println("Incorrect usage of bean set bio. Please run bean help for correct usage.");
+            return;
+        } else {
+            while (newBio.equals("")) {
+                System.out.print("Please enter your new bio:");
+                newBio = scanner.nextLine();
+            }
+        } 
+
+        String url = ClientApplication.endpoint + "/user/setBio/" + "BeanLover42"; // AuthenticationProcess. TODO: this 
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(AuthenticationProcess.getAccessToken());
+    
+        HttpEntity<String> requestEntity = new HttpEntity<>(newBio, headers);
+
+        ResponseEntity<Boolean> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, 
+        Boolean.class);
+        boolean success = responseEntity.getBody();
+        if (success) {
+            System.out.println("Successfully set your new bio!");
+        }
     }
 
     private static void react(List<String> commandElements){
@@ -311,6 +402,8 @@ public class UserInput {
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
+        String body = String.join(" ", commandElements);
+        
         if(isPost){
             if(checkPostByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
                 makePostReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
@@ -332,11 +425,10 @@ public class UserInput {
     }
 
     public static void makePostReaction(int postID, int reactID){
-        String endpoint = "http://localhost:5000";
         int reactionID = 0;
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction  = new Reaction(userId,reactID,currentTime);
-        String createReactUrl = endpoint + "/reaction";
+        String createReactUrl = ClientApplication.endpoint + "/reaction";
 
         ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
         if(response.getBody()!=null){
@@ -349,7 +441,7 @@ public class UserInput {
 
 
         PostReaction newPostReaction = new PostReaction(postID, reactionID);
-        String url = endpoint + "/postreaction";
+        String url = ClientApplication.endpoint + "/postreaction";
         boolean success = handleRequest(url, newPostReaction, HttpMethod.POST);
         if (success) {
             System.out.println("Successfully added post reaction!");
@@ -359,11 +451,10 @@ public class UserInput {
     }
 
     public static void makeCommentReaction(int commentID, int reactID){
-        String endpoint = "http://localhost:5000";
         int reactionID = 0;
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction  = new Reaction(userId,reactID,currentTime);
-        String createReactUrl = endpoint + "/reaction";
+        String createReactUrl = ClientApplication.endpoint + "/reaction";
 
         ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
         if(response.getBody()!=null){
@@ -376,7 +467,7 @@ public class UserInput {
 
 
         CommentReaction newCommentReaction = new CommentReaction(commentID, reactionID);
-        String url = endpoint + "/commentreaction";
+        String url = ClientApplication.endpoint + "/commentreaction";
         boolean success = handleRequest(url, newCommentReaction, HttpMethod.POST);
         if (success) {
             System.out.println("Successfully added comment reaction!");
@@ -534,7 +625,7 @@ public class UserInput {
         String url = ClientApplication.endpoint + "/posts";
 
         try {
-            ResponseEntity<List<Post>> responseEntity = executeViewRequest(url, null, HttpMethod.POST, 
+            ResponseEntity<List<Post>> responseEntity = executeViewRequest(url, "string", HttpMethod.POST, 
             new ParameterizedTypeReference<List<Post>>() {});
 
             String postList = responseEntity.getBody().stream()
@@ -569,24 +660,13 @@ public class UserInput {
             Post post = responseEntity.getBody();
             List<Comment> comments = getPostComments(post.getPostId());
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("Post Information:\n");
-            sb.append("-----------------\n");
-            sb.append("Post ID: ").append(post.getPostId()).append("\n");
-            sb.append("Username: ").append(post.getUserId()).append("\n");
-            sb.append("Tag name: ").append(post.getTagId()).append("\n");
-            sb.append("Post Title: ").append(post.getPostTitle()).append("\n");
-            sb.append("Post Content: ").append(post.getPostContent()).append("\n");
-            sb.append("Date Posted: ").append(post.getDatePosted()).append("\n");
-            sb.append("-----------------\n");
-            System.out.println(sb.toString());
+            String postInfo = ViewBuilder.buildPost(post);
+            System.out.println(postInfo);
 
             System.out.println("\nComments:");
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
-            .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
-            .collect(Collectors.joining("\n")));
+            .map(comment -> ViewBuilder.buildComment(comment)).collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
             System.out.println("Invalid request: " + ex.getResponseBodyAsString());
@@ -594,7 +674,6 @@ public class UserInput {
             System.out.println("Invalid request: User not found");
         }
     }
-
 
     private static void viewMyPosts(List<String> commandElements) {
         commandElements.remove(0);
@@ -710,111 +789,107 @@ public class UserInput {
     }
 
     private static void addBean(List<String> commandElements) {
-        if(ClientApplication.isAdmin){
-            commandElements.remove(0);
-            if(commandElements.size() <= 1){
-                System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
-                return;
-            } else if (commandElements.get(0).isEmpty()) {
-                System.out.println("Please enter an actual bean name");
-                return;
-            } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
-                System.out.println("Invalid input argument for banned status");
-                return;
-            } else {
-    
-                String url = ClientApplication.endpoint + "/favoritebean/add";
-                FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
-    
-                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-                if (execution_success) {
-                    System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
-                }
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
+        commandElements.remove(0);
+        if(commandElements.size() <= 1){
+            System.out.println("The 'add' command is used incorrectly, name and banned status not provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual bean name");
+            return;
+        } else if (!Arrays.asList("true", "false").contains(commandElements.get(1).toLowerCase())) {
+            System.out.println("Invalid input argument for banned status");
+            return;
+        } else {
+
+            String url = ClientApplication.endpoint + "/favoritebean/add";
+            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0), Boolean.parseBoolean(commandElements.get(1)));
+
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully added " + newEntity.getBeanName() + " to the system!");
             }
-        }else{
-            System.out.println("You need to be an admin to execute this command!");
-        }     
+        }
+
+        
         
     }
 
     private static void addTag(List<String> commandElements) {
-        if(ClientApplication.isAdmin)
-        {
-            commandElements.remove(0);
-            if(commandElements.size() == 0){
-                System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
-                return;
-            } else if (commandElements.get(0).isEmpty()) {
-                System.out.println("Please enter an actual tag name");
-                return;
-            } else {
-    
-                String url = ClientApplication.endpoint + "/tag/add";
-                RestTemplate restTemplate = new RestTemplate();
-                Tag newEntity = new Tag(commandElements.get(0));
-    
-                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-                if (execution_success) {
-                    System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
-                }
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
+        }
+        commandElements.remove(0);
+        if(commandElements.size() == 0){
+            System.out.println("The 'add' command is used incorrectly, name not provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual tag name");
+            return;
+        } else {
+
+            String url = ClientApplication.endpoint + "/tag/add";
+            RestTemplate restTemplate = new RestTemplate();
+            Tag newEntity = new Tag(commandElements.get(0));
+
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
             }
-            
-        }else{
-            System.out.println("You must be an admin user to execute this command!");
         }
        
     }
 
     private static void removeBean(List<String> commandElements){
-        if(ClientApplication.isAdmin)
-        {
-            commandElements.remove(0);
-            if(commandElements.size() == 0){
-                System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
-                return;
-            } else if (commandElements.get(0).isEmpty()) {
-                System.out.println("Please enter an actual bean name");
-                return;
-            } else {
-                
-                String url = ClientApplication.endpoint + "/favoritebean/remove";
-                FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
-    
-                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-                if (execution_success) {
-                    System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
-                }
-            }
-        }else{
-            System.out.println("You need to be an admin to execute this command");
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
         }
-       
+        commandElements.remove(0);
+        if(commandElements.size() == 0){
+            System.out.println("The 'remove' command is used incorrectly no BeanName provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual bean name");
+            return;
+        } else {
+            
+            String url = ClientApplication.endpoint + "/favoritebean/remove";
+            FavoriteBean newEntity = new FavoriteBean(commandElements.get(0));
+
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully removed " + newEntity.getBeanName() + " from the system!");
+            }
+        }
     }
 
     private static void removeTag(List<String> commandElements){
-        if(ClientApplication.isAdmin)
-        {
-            commandElements.remove(0);
-            if(commandElements.size() == 0){
-                System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
-                return;
-            } else if (commandElements.get(0).isEmpty()) {
-                System.out.println("Please enter an actual tag name");
-                return;
-            } else {
-                
-                String url = ClientApplication.endpoint + "/tag/remove";
-                Tag newEntity = new Tag(commandElements.get(0));
-    
-                boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
-                if (execution_success) {
-                    System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
-                }
-            }
-        }else{
-            System.out.println("You must be an admin to execute this command!");
+        if (!ClientApplication.isAdmin) {
+            System.out.println("Only admins have access to this command.");
+            return;
         }
+        commandElements.remove(0);
+        if(commandElements.size() == 0){
+            System.out.println("The 'remove' command is used incorrectly no Tag name provided.\n\tPlease run 'bean help' for help.");
+            return;
+        } else if (commandElements.get(0).isEmpty()) {
+            System.out.println("Please enter an actual tag name");
+            return;
+        } else {
+            
+            String url = ClientApplication.endpoint + "/tag/remove";
+            Tag newEntity = new Tag(commandElements.get(0));
 
+            boolean execution_success = handleRequest(url, newEntity, HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully removed " + newEntity.getTag_name() + " from the system!");
+            }
+        }
     }
 
     private static void ban(List<String> commandElements){

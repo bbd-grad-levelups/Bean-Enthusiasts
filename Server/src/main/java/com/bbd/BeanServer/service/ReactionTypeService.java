@@ -10,8 +10,9 @@ import com.bbd.shared.models.ReactionType;
 
 @Service
 public class ReactionTypeService {
+
       @Autowired
-    private static ReactionTypeRepository reactionTypeRepository;
+    private ReactionTypeRepository reactionTypeRepository;
 
      public Optional<ReactionType> getReactionTypeById(int id) {
       return reactionTypeRepository.findAll().stream()
