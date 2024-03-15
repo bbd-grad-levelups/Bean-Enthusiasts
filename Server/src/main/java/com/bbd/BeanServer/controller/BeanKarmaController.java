@@ -42,7 +42,7 @@ public class BeanKarmaController {
             beanKarma += commentReactionRepository.getReactionCountForComment((long) comment.getComment_id());
         }
 
-        return 0;
+        return beanKarma;
     }
 
     @GetMapping("/calculatebeankarmaforpost/{post_id}")

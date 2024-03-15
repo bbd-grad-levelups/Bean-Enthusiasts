@@ -142,19 +142,11 @@ public class UserInput {
             postContent = scanner.nextLine();
         }
         String postTag = "";
-        //TODO: implement tag functionality
-        List<String> allTags = List.of("LIMA", "KIDNEY", "BLOOD");
-        while(postTag.equals("")){
-            System.out.println("All Possible Tags Are:");
-            allTags.forEach(System.out::println);
-            System.out.print("PostTag: ");
-            postTag = scanner.nextLine();
-            if(!allTags.contains(postTag.toUpperCase())){
-                postTag = "";
-                System.out.println("Please supply a valid tag from the supplied list");
-                return;
-            }
-        }
+        //viewTags();
+        //TODO: VIEW TAGS STUFF!!!
+        System.out.println("Pretend u can see the tags here, for testing, type in DIY");
+        System.out.print("Please provide the a tag from the above list");
+        postTag = scanner.nextLine();
         makePost(postTitle, postContent, postTag);
     }
 
@@ -162,7 +154,7 @@ public class UserInput {
 
         String endpoint = "http://localhost:5000";
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        Post newPost = new Post(userId,1,postTitle,postContent,currentTime);
+        Post newPost = new Post(userId,getTagID(postTag),postTitle,postContent,currentTime);
         
         String createPostUrl = endpoint + "/createpost";
         boolean execution_success = handleRequest(createPostUrl, newPost, HttpMethod.POST);
@@ -240,7 +232,7 @@ public class UserInput {
         if(response.getBody()!=null){
             tagId = response.getBody().getTag_id(); 
         }else{
-            System.out.println("NO TAG PROVIDED!!!!!Defaulting :'(");
+            System.out.println("NO PROPER TAG PROVIDED!!!!!Defaulting :'( to 1");
         }
         return tagId;
     }
@@ -259,16 +251,30 @@ public class UserInput {
         }
     }
 
+    public static boolean checkCommentByID(int commentID)
+    {
+        String endpoint = "http://localhost:5000";
+        String url = endpoint + "/findcomment";
+        Comment requestComment = new Comment(commentID);
+        ResponseEntity<Comment> response = executeClassRequest(url,requestComment,HttpMethod.POST,Comment.class);
+        if(response.getBody()!=null){
+            return true;
+        }else{
+            System.out.println("Selected comment does not exist");
+            return false;
+        }
+    }
+
     public static boolean checkReactionByID(int reactionID)
     {
         String endpoint = "http://localhost:5000";
         String url = endpoint + "/findreaction";
-        PostReaction requestReaction = new PostReaction(reactionID);
-        ResponseEntity<Post> response = executeClassRequest(url,requestReaction,HttpMethod.POST,Post.class);
+        ReactionType requestReaction = new ReactionType(reactionID);
+        ResponseEntity<ReactionType> response = executeClassRequest(url,requestReaction,HttpMethod.POST,ReactionType.class);
         if(response.getBody()!=null){
             return true;
         }else{
-            System.out.println("Selected reaction does not exist");
+            System.out.println("Selected reaction type does not exist");
             return false;
         }
     }
@@ -280,7 +286,6 @@ public class UserInput {
             return;
         }
         String postID = commandElements.get(0);
-        //todo check that this is a valid postID
         commandElements.remove(0);
 
         if(commandElements.size() == 0){
@@ -289,8 +294,6 @@ public class UserInput {
         }
         String comment = String.join(" ", commandElements);
 
-        //todo insert function that makes a comment
-        //using postID, comment
         makeComment( Integer.parseInt(postID),comment);
     }
 
@@ -387,15 +390,10 @@ public class UserInput {
             System.out.println("The 'react' command is used incorrectly.\n\tPlease run 'bean help' for help.");
             return;
         }
-        if(!commandElements.get(0).contains("=")){
-            System.out.println("Incorrect usage of the 'react' command.\n\tCheck the 'bean help' command for usage.");
-            return;
-        }
-        List<String> third = Arrays.stream(commandElements.get(0).split("=", -2))
-            .collect(Collectors.toList());
         boolean isPost;
-        String ID = third.get(1);
-        switch (third.get(0)) {
+        String postID = commandElements.get(1);
+        String reactID = commandElements.get(2);
+        switch (commandElements.get(0)) {
             case "post":
                 isPost = true;
                 break;
@@ -403,7 +401,7 @@ public class UserInput {
                 isPost = false;
                 break;
             default:
-                System.out.println(third.get(0) + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
+                System.out.println(commandElements.get(0) + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
                 return;
         }
         commandElements.remove(0);
@@ -414,31 +412,76 @@ public class UserInput {
         String body = String.join(" ", commandElements);
         
         if(isPost){
-            //todo make sure that ID contains a valid postID
-            //todo the react command was used to react to a POST
-            if(checkPostByID(Integer.parseInt("1")) && checkReactionByID(Integer.parseInt("1"))){
-                System.out.println("Please enter the ID of a post that exists");
+            if(checkPostByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
+                makePostReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
                 return;
             }else{
-
+                System.out.println("Either the post ID or reaction ID is not correct. Please try again.");
+                
             }
-            //todo make sure the reaction is a valid reaction
 
         } else {
-            //todo make sure that ID contains a valid commentID
-            //todo the react command was used to react to a COMMENT
-            //todo make sure the reaction is a valid reaction
+            if(checkCommentByID(Integer.parseInt(postID)) && (Integer.parseInt(reactID) ==1 || Integer.parseInt(reactID) ==2)){
+                makeCommentReaction(Integer.parseInt(postID), Integer.parseInt(reactID));
+                return;
+            }else{
+                System.out.println("Either the post ID or reaction ID is not correct. Please try again.");
+                
+            }
         } 
     }
 
-    public static void makeReaction(int postID, int reactID){
+    public static void makePostReaction(int postID, int reactID){
         String endpoint = "http://localhost:5000";
-        PostReaction newReaction = new PostReaction(postID, reactID);
-        
-        String createReactUrl = endpoint + "/postreaction";
-        boolean execution_success = handleRequest(createReactUrl, newReaction, HttpMethod.POST);
-        if (execution_success) {
+        int reactionID = 0;
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction  = new Reaction(userId,reactID,currentTime);
+        String createReactUrl = endpoint + "/reaction";
+
+        ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
+        if(response.getBody()!=null){
             System.out.println("Successfully added reaction!");
+            reactionID = response.getBody().getReaction_id(); 
+        }else{
+            System.out.println("Something went wrong");
+            return;
+        }
+
+
+        PostReaction newPostReaction = new PostReaction(postID, reactionID);
+        String url = endpoint + "/postreaction";
+        boolean success = handleRequest(url, newPostReaction, HttpMethod.POST);
+        if (success) {
+            System.out.println("Successfully added post reaction!");
+        }else{
+            System.out.println("Something went wrong");
+        }
+    }
+
+    public static void makeCommentReaction(int commentID, int reactID){
+        String endpoint = "http://localhost:5000";
+        int reactionID = 0;
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        Reaction newReaction  = new Reaction(userId,reactID,currentTime);
+        String createReactUrl = endpoint + "/reaction";
+
+        ResponseEntity<Reaction> response = executeClassRequest(createReactUrl,newReaction,HttpMethod.POST,Reaction.class);
+        if(response.getBody()!=null){
+            System.out.println("Successfully added reaction!");
+            reactionID = response.getBody().getReaction_id(); 
+        }else{
+            System.out.println("Something went wrong");
+            return;
+        }
+
+
+        CommentReaction newCommentReaction = new CommentReaction(commentID, reactionID);
+        String url = endpoint + "/commentreaction";
+        boolean success = handleRequest(url, newCommentReaction, HttpMethod.POST);
+        if (success) {
+            System.out.println("Successfully added comment reaction!");
+        }else{
+            System.out.println("Something went wrong");
         }
     }
 
@@ -576,7 +619,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), "date"))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -807,7 +850,7 @@ public class UserInput {
                 System.out.println("Successfully added " + newEntity.getTag_name() + " to the system!");
             }
         }
-        
+       
     }
 
     private static void removeBean(List<String> commandElements){

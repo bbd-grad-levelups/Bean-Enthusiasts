@@ -26,6 +26,5 @@ public class Reaction {
         this.user_id = user_id;
         this.reaction_type_id = reaction_type_id;
         this.date_of_reaction = date_of_reaction;
-
     }
 }
