@@ -2,6 +2,9 @@ package com.bbd.BeanClient.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import io.micrometer.common.lang.NonNull;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -121,7 +124,7 @@ public class AuthenticationProcess {
         return username;
     }
 
-    public static String getAccessToken() {
+    public static @NonNull String getAccessToken() {
         return accessToken;
     }
 

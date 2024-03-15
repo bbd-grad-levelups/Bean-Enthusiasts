@@ -1,7 +1,7 @@
 package com.bbd.BeanClient;
 
 import com.bbd.BeanClient.util.AuthenticationProcess;
-
+import com.bbd.BeanClient.util.ViewBuilder;
 import com.bbd.shared.models.*;
 
 import org.springframework.boot.CommandLineRunner;
@@ -52,7 +52,6 @@ public class ClientApplication {
         return args -> {
             System.out.println("Welcome... to BEANS");    
             
-            System.out.println("Tests completed, starting client");
 
             while (true) {
                 System.out.print("\n\n>");
@@ -134,22 +133,6 @@ public class ClientApplication {
         }
     }
 
-
-    /*
-     * Fetch Favorite Beans
-     */
-    public static String retrieveFavoriteBeans() {
-        String favBeansUrl = endpoint + "/favoritebeans";
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        String favBeans = restTemplate.getForObject(favBeansUrl, String.class);
-
-        System.out.println("Fav beans are " + favBeans);
-
-        return favBeans;
-    }
-
     /*
         Can you use this to like /dislike comment
     */
@@ -163,7 +146,7 @@ public class ClientApplication {
 
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         Reaction newReaction = new Reaction(userId, reactionTypeId, currentTime);
-        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId, new Timestamp(commentId));
+        CommentReaction newCommentReaction = new CommentReaction(commentId, reactionTypeId, currentTime);
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("reaction", newReaction);
@@ -177,26 +160,6 @@ public class ClientApplication {
         } else {
             System.out.println("Failed to upvote comment. Status code: " + responseEntity.getStatusCodeValue());
         }
-    }
-
-
-
-    public ResponseEntity<String> yourMethod(String accessToken) {
-        // Your logic to generate response
-        String responseBody = "Your response body here";
-
-        // Creating HttpHeaders object to add headers
-        HttpHeaders headers = new HttpHeaders();
-
-        // Adding headers to HttpHeaders object
-        headers.add("Custom-Header", "Custom-Value");
-        headers.add("Another-Header", "Another-Value");
-        headers.add("Authorization", "Bearer " + accessToken);
-
-        // Creating ResponseEntity with headers and status
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
-
-        return responseEntity;
     }
 
     /*

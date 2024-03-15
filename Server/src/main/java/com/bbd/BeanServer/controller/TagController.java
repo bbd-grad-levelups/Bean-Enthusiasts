@@ -3,6 +3,7 @@ package com.bbd.BeanServer.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +23,18 @@ class TagController {
   @Autowired
   TagService service;
 
-  @PostMapping("/tag")
+  @GetMapping("/tag")
   ResponseEntity<?> returnAll() {
     List<Tag> tags = repository.findAll();
     return tags.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tags);
+  }
+
+  @GetMapping("/tag/find/{id}")
+  ResponseEntity<?> returnSpecificbyID(@PathVariable int id) {
+    System.out.println("Received tag id: " + id);
+    return repository.findById((long) id).map(x -> {
+      return ResponseEntity.ok(x);
+    }).orElse(ResponseEntity.notFound().build());
   }
 
   @PostMapping("/tag/find")

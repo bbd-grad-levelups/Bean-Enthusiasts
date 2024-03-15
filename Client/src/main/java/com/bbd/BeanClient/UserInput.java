@@ -1,8 +1,10 @@
 package com.bbd.BeanClient;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.bbd.BeanClient.util.AuthenticationProcess;
+import com.bbd.BeanClient.util.ViewBuilder;
 import com.bbd.shared.models.*;
 
 import ch.qos.logback.core.pattern.PostCompileProcessor;
@@ -293,24 +296,88 @@ public class UserInput {
 
     private static void set(List<String> commandElements){
         commandElements.remove(0);
-        if(commandElements.size() == 0){
-            System.out.println("The 'set' command needs a favouriteBean when using it.\nPlease run 'bean set <FavouriteBean>'");
+        if(commandElements.size() < 1){
+            System.out.println("The 'set' command needs an option when using it.\nPlease run 'bean set <option>'");
             return;
         }
+
+        String third = commandElements.get(0);
+        switch (third) {
+            case "bean":
+                setFavBean(commandElements);
+                break;
+            case "bio":
+                setBio(commandElements);
+                break;
+            default:
+                System.out.println(third + " is not a valid option for the 'react' command.\n\tCheck the 'bean help' command.");
+                return;
+        }
+        
+    
+    }
+
+    private static void setFavBean(List<String> commandElements) {
+        commandElements.remove(0);
+
         String favBean = commandElements.get(0);
+        String username;
+        if (ClientApplication.isAdmin && commandElements.size() == 2) {
+            username = commandElements.get(1);
+        } else {
+            username = AuthenticationProcess.getUsername();
+        }
+
         String url = ClientApplication.endpoint + "/favoritebean";
         
         ResponseEntity<List<FavoriteBean>> responseEntity = executeViewRequest(url, null, 
         HttpMethod.GET, new ParameterizedTypeReference<List<FavoriteBean>>() {});
 
-        String beanList = responseEntity.getBody().stream()
-        .map(x -> String.format("%-20s %-10s", x.getBeanName(), x.isBanned()))
-        .collect(Collectors.joining("\n"));
+        Optional<FavoriteBean> chosenBean = Optional.ofNullable(responseEntity.getBody()).orElseGet(ArrayList::new)
+        .stream().filter(x -> x.getBeanName().equalsIgnoreCase(favBean)).findFirst();
 
-        if(beanList.contains(favBean)){
-            //todo-JOHAN set the favourite bean of this user with the favBean
-        } else {
+        if(!chosenBean.isPresent()) {
             System.out.println("Please choose a bean from the list of beans - view the list with 'bean view favbeans'");
+        } else if (chosenBean.get().isBanned()){ 
+            System.out.println("This bean is banned! Please select an allowed bean as your favorite");
+        } else {
+            url = ClientApplication.endpoint + "/user/setbean/" + username;
+
+            boolean execution_success = handleRequest(url, chosenBean.get(), HttpMethod.POST);
+            if (execution_success) {
+                System.out.println("Successfully set " + chosenBean.get().getBeanName() + " as your favorite!");
+            }
+        }
+    }
+
+    private static void setBio(List<String> commandElements) {
+        commandElements.remove(0);
+
+        
+        String newBio = "";
+        if (!commandElements.isEmpty()) {
+            System.out.println("Incorrect usage of bean set bio. Please run bean help for correct usage.");
+            return;
+        } else {
+            while (newBio.equals("")) {
+                System.out.print("Please enter your new bio:");
+                newBio = scanner.nextLine();
+            }
+        } 
+
+        String url = ClientApplication.endpoint + "/user/setBio/" + "BeanLover42"; // AuthenticationProcess. TODO: this 
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(AuthenticationProcess.getAccessToken());
+    
+        HttpEntity<String> requestEntity = new HttpEntity<>(newBio, headers);
+
+        ResponseEntity<Boolean> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, 
+        Boolean.class);
+        boolean success = responseEntity.getBody();
+        if (success) {
+            System.out.println("Successfully set your new bio!");
         }
     }
 
@@ -509,7 +576,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), "date"))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -559,24 +626,13 @@ public class UserInput {
             Post post = responseEntity.getBody();
             List<Comment> comments = getPostComments(post.getPostId());
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("Post Information:\n");
-            sb.append("-----------------\n");
-            sb.append("Post ID: ").append(post.getPostId()).append("\n");
-            sb.append("Username: ").append(post.getUserId()).append("\n");
-            sb.append("Tag name: ").append(post.getTagId()).append("\n");
-            sb.append("Post Title: ").append(post.getPostTitle()).append("\n");
-            sb.append("Post Content: ").append(post.getPostContent()).append("\n");
-            sb.append("Date Posted: ").append(post.getDatePosted()).append("\n");
-            sb.append("-----------------\n");
-            System.out.println(sb.toString());
+            String postInfo = ViewBuilder.buildPost(post);
+            System.out.println(postInfo);
 
             System.out.println("\nComments:");
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
-            .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
-            .collect(Collectors.joining("\n")));
+            .map(comment -> ViewBuilder.buildComment(comment)).collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
             System.out.println("Invalid request: " + ex.getResponseBodyAsString());
@@ -584,7 +640,6 @@ public class UserInput {
             System.out.println("Invalid request: User not found");
         }
     }
-
 
     private static void viewMyPosts(List<String> commandElements) {
         commandElements.remove(0);

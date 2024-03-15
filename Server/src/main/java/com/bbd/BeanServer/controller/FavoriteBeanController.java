@@ -6,6 +6,7 @@ import com.bbd.shared.models.FavoriteBean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,13 @@ class FavoriteBeanController {
     ResponseEntity<?> returnAll() {
         List<FavoriteBean> beans = repository.findAll();
         return beans.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(beans);
+    }
+
+    @GetMapping("/favoritebean/find/{id}")
+    ResponseEntity<?> returnSpecificWithID(@PathVariable int id) {
+        return repository.findById((long) id).map(x -> {
+            return ResponseEntity.ok(x);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/favoritebean/find")
@@ -68,7 +76,7 @@ class FavoriteBeanController {
         }
     }
 
-    @PostMapping("favoritebean/remove")
+    @PostMapping("/favoritebean/remove")
     ResponseEntity<?> removeBean(@RequestBody FavoriteBean request) {
         if (request == null) {
             return ResponseEntity.badRequest().body("No value given");
