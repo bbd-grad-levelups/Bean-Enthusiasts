@@ -531,7 +531,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
@@ -597,7 +597,7 @@ public class UserInput {
             System.out.println("--------------------\n");
             System.out.println(comments.stream()
             .map(comment -> 
-            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDatePosted()))
+            String.format("Comment ID: %d\nUser ID: %d\nComment: %s\nDate Posted: %s\n",comment.getComment_id(), comment.getUser_id(), comment.getComment_info(), comment.getDate_posted()))
             .collect(Collectors.joining("\n")));
 
         } catch (HttpClientErrorException.BadRequest ex) {
